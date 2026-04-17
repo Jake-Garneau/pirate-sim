@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Somali Waters — Pirate Tycoon</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060e1a;overflow:hidden;font-family:'Rajdhani',sans-serif;color:#ecf0f1;user-select:none}
+canvas{display:block}
+
+#menu-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:#060e1a}
+#menu-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.menu-content{position:relative;z-index:1;text-align:center;padding:20px;max-width:1200px}
+.menu-title{font-family:'Oswald',sans-serif;font-size:clamp(32px,6vw,64px);font-weight:700;letter-spacing:4px;color:#ecf0f1;text-shadow:0 0 40px rgba(231,76,60,0.3);margin-bottom:4px}
+.menu-sub{font-size:clamp(10px,1.5vw,14px);color:#7f8c8d;letter-spacing:6px;text-transform:uppercase;margin-bottom:24px}
+
+.faction-cards{display:flex;gap:14px;margin:24px 0 20px;flex-wrap:wrap;justify-content:center}
+.faction-card{width:220px;padding:16px 14px;background:rgba(12,20,35,0.95);border:2px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;text-align:left;overflow:hidden;border-radius:4px}
+.faction-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.faction-card.selected{border-color:var(--fc);box-shadow:0 0 25px color-mix(in srgb,var(--fc) 30%,transparent)}
+.faction-card .fc-icon{font-size:22px;margin-bottom:8px;color:var(--fc)}
+.faction-card h3{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:4px;color:var(--fc)}
+.faction-card p{font-size:11px;color:#95a5a6;line-height:1.4;margin-bottom:6px}
+.faction-card ul{list-style:none;font-size:10px;color:#7f8c8d;line-height:1.5}
+.faction-card ul li::before{content:'▸ ';color:var(--fc);margin-right:2px}
+.fc-navy{--fc:#3498db}.fc-shipping{--fc:#27ae60}.fc-pirate{--fc:#e74c3c}
+
+#deploy-btn{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:3px;padding:10px 48px;background:transparent;border:2px solid rgba(255,255,255,0.12);color:#555;cursor:default;transition:all 0.25s;text-transform:uppercase;border-radius:3px;margin-top:8px}
+#deploy-btn.ready{border-color:#e74c3c;color:#e74c3c;cursor:pointer;box-shadow:0 0 18px rgba(231,76,60,0.2)}
+#deploy-btn.ready:hover{background:#e74c3c;color:#fff}
+
+#game-screen{position:fixed;inset:0;display:none}
+#game-canvas{position:absolute;inset:0}
+#hud{position:absolute;inset:0;pointer-events:none}
+#hud>*{pointer-events:auto}
+.hud-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hud-panel{background:rgba(8,15,25,0.92);border:1px solid rgba(255,255,255,0.08);padding:8px 12px;backdrop-filter:blur(4px);border-radius:3px;min-width:170px}
+.hud-label{font-size:8px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-top:2px}
+.hud-value{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600}
+.bar-wrap{width:120px;height:6px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:1px;transition:width 0.25s}
+.bar-fuel{background:linear-gradient(90deg,#e74c3c,#f39c12)}
+.bar-hp{background:linear-gradient(90deg,#c0392b,#27ae60)}
+.bar-loot{background:linear-gradient(90deg,#e67e22,#f1c40f)}
+
+#minimap-wrap{position:absolute;bottom:8px;right:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(8,15,25,0.9);border-radius:2px;overflow:hidden}
+#minimap{display:block}
+
+#msg-log{position:absolute;bottom:8px;left:8px;max-width:340px;display:flex;flex-direction:column;gap:2px}
+.msg{font-size:10px;padding:2px 8px;background:rgba(8,15,25,0.9);border-left:2px solid #555;animation:msgIn 0.25s ease-out;white-space:nowrap;border-radius:0 2px 2px 0}
+.msg.alert{border-color:#e74c3c;color:#e74c3c}.msg.success{border-color:#27ae60;color:#27ae60}.msg.info{border-color:#3498db;color:#3498db}.msg.warn{border-color:#f39c12;color:#f39c12}
+@keyframes msgIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+
+#interact-prompt{position:absolute;top:55%;left:50%;transform:translateX(-50%);font-size:13px;padding:6px 14px;background:rgba(8,15,25,0.95);border:1px solid rgba(255,255,255,0.15);display:none;letter-spacing:0.5px;border-radius:3px;box-shadow:0 2px 10px rgba(0,0,0,0.3);z-index:60;pointer-events:none;white-space:nowrap}
+
+#shop-panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;max-height:85vh;overflow-y:auto;background:rgba(8,15,25,0.97);border:1px solid rgba(255,255,255,0.15);padding:18px;display:none;backdrop-filter:blur(8px);border-radius:4px;box-shadow:0 4px 30px rgba(0,0,0,0.5);z-index:200}
+#shop-panel h3{font-family:'Oswald',sans-serif;font-size:17px;letter-spacing:2.5px;margin-bottom:2px}
+.shop-sub{font-size:10px;color:#666;margin-bottom:12px;line-height:1.4}
+.market-badge{font-size:9px;padding:2px 7px;border-radius:2px;font-weight:600;letter-spacing:0.5px;display:inline-block;margin:3px 0 8px}
+.market-open{background:rgba(39,174,96,0.2);color:#27ae60;border:1px solid #27ae60}
+.market-risk{background:rgba(243,156,18,0.2);color:#f39c12;border:1px solid #f39c12}
+.market-lock{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid #e74c3c}
+.shop-item{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;transition:background 0.15s;border-radius:2px}
+.shop-item:hover{background:rgba(255,255,255,0.04)}
+.si-info{flex:1}.si-name{font-size:12px;font-weight:600}.si-desc{font-size:9px;color:#666;margin-top:1px}
+.si-btn{padding:3px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;border:1px solid;cursor:pointer;transition:all 0.15s;background:transparent;letter-spacing:0.5px;white-space:nowrap;border-radius:2px}
+.si-btn.can-buy{border-color:#27ae60;color:#27ae60}.si-btn.can-buy:hover{background:rgba(39,174,96,0.15)}
+.si-btn.cant-buy{border-color:#555;color:#555;opacity:0.4;cursor:not-allowed}
+.si-btn.deliver-btn{border-color:#f39c12;color:#f39c12}.si-btn.deliver-btn:hover{background:rgba(243,156,18,0.15)}
+.si-btn.repair-btn{border-color:#3498db;color:#3498db}.si-btn.repair-btn:hover{background:rgba(52,152,219,0.15)}
+.si-btn.rum-btn{border-color:#d4a017;color:#d4a017}.si-btn.rum-btn:hover{background:rgba(212,160,23,0.15)}
+#shop-close{position:absolute;top:8px;right:12px;font-size:20px;cursor:pointer;color:#666;background:none;border:none;line-height:1;padding:2px;z-index:201}
+#shop-close:hover{color:#ecf0f1}
+.shop-section-title{font-size:9px;letter-spacing:1.8px;color:#555;text-transform:uppercase;padding:6px 0 3px;border-top:1px solid rgba(255,255,255,0.06);margin:8px 0 4px}
+
+#contract-hud{position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(8,15,25,0.92);border:1px solid rgba(39,174,96,0.3);padding:8px 12px;border-radius:3px;display:none;min-width:140px;pointer-events:none}
+#contract-hud .ch-label{font-size:8px;letter-spacing:1.5px;color:#27ae60;text-transform:uppercase}
+#contract-hud .ch-cargo{font-family:'Oswald',sans-serif;font-size:14px;margin:2px 0}
+#contract-hud .ch-dest{font-size:11px;color:#95a5a6}
+#contract-hud .ch-reward{font-size:12px;color:#f39c12;font-weight:600;margin-top:2px}
+#contract-hud .ch-dist{font-size:10px;color:#666}
+
+#slow-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,60px);font-size:14px;font-weight:700;color:#e74c3c;letter-spacing:2px;display:none;pointer-events:none;text-shadow:0 0 10px rgba(231,76,60,0.5);animation:slowPulse 0.8s ease-in-out infinite}
+@keyframes slowPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+#drunk-overlay{position:absolute;inset:0;pointer-events:none;z-index:44;display:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(180,120,30,0.2) 100%);border:3px solid rgba(200,150,50,0.25);animation:drunkWobble 2s ease-in-out infinite}
+@keyframes drunkWobble{0%,100%{border-color:rgba(200,150,50,0.25)}50%{border-color:rgba(200,150,50,0.08)}}
+#drunk-hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#d4a017;letter-spacing:3px;display:none;pointer-events:none;text-shadow:0 0 12px rgba(212,160,23,0.5);animation:drunkText 1.5s ease-in-out infinite}
+@keyframes drunkText{0%,100%{transform:translateX(-50%) rotate(0deg)}25%{transform:translateX(-50%) rotate(-2deg)}75%{transform:translateX(-50%) rotate(2deg)}}
+
+#gameover-screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:300;background:rgba(6,14,26,0.97)}
+.go-title{font-family:'Oswald',sans-serif;font-size:36px;letter-spacing:3px;margin-bottom:4px}
+.go-sub{font-size:13px;color:#666;margin-bottom:24px;max-width:380px;text-align:center;line-height:1.4}
+.go-stats{text-align:left;margin-bottom:24px;min-width:240px;background:rgba(12,20,35,0.8);padding:12px 16px;border-radius:4px;border:1px solid rgba(255,255,255,0.06)}
+.go-stats div{padding:4px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between}
+.go-stats span{font-weight:600}
+#restart-btn{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2.5px;padding:9px 40px;background:transparent;border:2px solid #e74c3c;color:#e74c3c;cursor:pointer;transition:all 0.25s;border-radius:3px}
+#restart-btn:hover{background:#e74c3c;color:#fff}
+.controls-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(100,110,120,0.7);letter-spacing:0.8px;text-align:center;max-width:90%;z-index:50;pointer-events:none}
+#pause-overlay{position:fixed;inset:0;background:rgba(6,14,26,0.8);display:none;align-items:center;justify-content:center;z-index:250}
+#pause-overlay h2{font-family:'Oswald',sans-serif;font-size:32px;letter-spacing:5px;color:#7f8c8d}
+
+.faction-hud{display:flex;align-items:center;gap:6px;font-size:11px}
+.faction-dot{width:8px;height:8px;border-radius:50%}
+.faction-dot.navy{background:#3498db}.faction-dot.ship{background:#27ae60}.faction-dot.pirate{background:#e74c3c}
+.risk-indicator{font-size:9px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div id="menu-screen">
+  <canvas id="menu-bg"></canvas>
+  <div class="menu-content">
+    <div class="menu-title">SOMALI WATERS</div>
+    <div class="menu-sub">Pirate Tycoon &bull; Three Factions &bull; Dynamic Markets</div>
+    <div class="faction-cards">
+      <div class="faction-card fc-navy" data-faction="navy">
+        <div class="fc-icon"><i class="fas fa-shield-halved"></i></div>
+        <h3>EU NAVFORCE</h3>
+        <p>Patrol the Gulf of Aden. Hunt pirates. Protect shipping lanes.</p>
+        <ul><li>Intercept pirate vessels</li><li>Refuel at naval bases</li><li>Score credits per kill</li><li>Slow pirates on approach</li></ul>
+      </div>
+      <div class="faction-card fc-shipping" data-faction="shipping">
+        <div class="fc-icon"><i class="fas fa-ship"></i></div>
+        <h3>MARITIME CARGO</h3>
+        <p>Run cargo contracts through dangerous waters. Deliver for profit.</p>
+        <ul><li>Pick up contracts at ports</li><li>Deliver cargo for big payouts</li><li>Avoid pirate ambush zones</li><li>Upgrade hull and speed</li></ul>
+      </div>
+      <div class="faction-card fc-pirate" data-faction="pirate">
+        <div class="fc-icon"><i class="fas fa-skull-crossbones"></i></div>
+        <h3>PIRATE CREW</h3>
+        <p>Stalk merchants. Board and loot. Sell at black markets. Hit the islands.</p>
+        <ul><li>Board ships to steal cargo</li><li>Sell loot at 3 black markets</li><li>Repair hull at ports or islands</li><li>Buy rum at islands (makes steering wobbly!)</li></ul>
+      </div>
+    </div>
+    <button id="deploy-btn">SELECT A FACTION</button>
+  </div>
+</div>
+
+<div id="game-screen">
+  <canvas id="game-canvas"></canvas>
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-panel" id="hud-left">
+        <div class="faction-hud"><div class="faction-dot" id="faction-dot"></div><span id="faction-name">FACTION</span></div>
+        <div class="hud-label">HULL INTEGRITY</div>
+        <div class="bar-wrap"><div class="bar-fill bar-hp" id="hp-bar" style="width:100%"></div></div>
+        <div class="hud-label" id="resource-label">FUEL</div>
+        <div class="bar-wrap"><div class="bar-fill bar-fuel" id="fuel-bar" style="width:100%"></div></div>
+        <div class="hud-label" id="loot-label" style="display:none">LOOT</div>
+        <div class="bar-wrap" id="loot-bar-wrap" style="display:none"><div class="bar-fill bar-loot" id="loot-bar" style="width:0%"></div></div>
+      </div>
+      <div class="hud-panel" id="hud-right">
+        <div class="hud-label">CREDITS</div>
+        <div class="hud-value" id="credits-display">$0</div>
+        <div class="hud-label" style="margin-top:6px" id="threat-label">THREAT LEVEL</div>
+        <div class="risk-indicator" id="threat-display" style="color:#27ae60">LOW</div>
+      </div>
+    </div>
+    <div id="minimap-wrap"><canvas id="minimap" width="180" height="140"></canvas></div>
+    <div id="msg-log"></div>
+    <div id="interact-prompt">[E] INTERACT</div>
+    <div id="slow-indicator">INTERCEPTED — SLOWED</div>
+  </div>
+  <div id="contract-hud">
+    <div class="ch-label">ACTIVE CONTRACT</div>
+    <div class="ch-cargo" id="ch-cargo">—</div>
+    <div class="ch-dest" id="ch-dest">—</div>
+    <div class="ch-reward" id="ch-reward">—</div>
+    <div class="ch-dist" id="ch-dist">—</div>
+  </div>
+  <div class="controls-hint">WASD Move &bull; E Dock/Interact &bull; SPACE Boost &bull; ESC Close/Pause</div>
+</div>
+
+<div id="drunk-overlay"></div>
+<div id="drunk-hud">DRUNK</div>
+
+<div id="shop-panel">
+  <button id="shop-close">&times;</button>
+  <div id="shop-content"></div>
+</div>
+
+<div id="pause-overlay"><h2>PAUSED</h2></div>
+
+<div id="gameover-screen">
+  <div class="go-title" id="go-title">MISSION FAILED</div>
+  <div class="go-sub" id="go-sub">Your vessel was lost.</div>
+  <div class="go-stats" id="go-stats"></div>
+  <button id="restart-btn">NEW OPERATION</button>
+</div>
+
+<script>
+// ======================== WORLD CONFIG ========================
+const WW = 3200, WH = 2400;
+const BOARD_RANGE = 45, BOARD_TIME = 3.0;
+const INTERCEPT_RANGE = 50;
+const DOCK_RANGE = 80, SLOW_RANGE = 90;
+const RUM_COST = 150, RUM_DURATION = 60;
+
+// ======================== LAND POLYGONS ========================
+const LAND_YEMEN = [
+  [0,0],[WW,0],[WW,360],[2800,330],[2200,360],[1600,340],
+  [1000,320],[600,360],[0,390]
+];
+const LAND_SOMALIA = [
+  [0,430],[0,WH],[450,WH],[480,2000],[450,1600],[430,1200],
+  [440,900],[480,720],[580,590],[680,560],[620,510],[520,480],
+  [350,460],[180,445]
+];
+
+// ======================== ISLANDS ========================
+const ISLAND_POLYS = [
+  [[1170,790],[1215,778],[1250,795],[1245,835],[1205,848],[1168,830]],
+  [[860,1050],[905,1038],[938,1058],[932,1092],[895,1105],[858,1082]]
+];
+
+// Combine all land for collision checks
+const ALL_LAND = [LAND_YEMEN, LAND_SOMALIA, ...ISLAND_POLYS];
+
+// ======================== PORTS ========================
+const PORTS = {
+  djibouti:  {x:350,  y:415, name:'Djibouti',   f:'navy'},
+  aden:      {x:1600, y:420, name:'Aden',        f:'neutral'},
+  bosaso:    {x:650,  y:550, name:'Bosaso',      f:'pirate'},
+  eyl:       {x:560,  y:700, name:'Eyl',         f:'pirate'},
+  hobyo:     {x:500,  y:970, name:'Hobyo',       f:'pirate'},
+  mogadishu: {x:470,  y:1250,name:'Mogadishu',   f:'neutral'},
+  mombasa:   {x:2200, y:1750,name:'Mombasa',     f:'neutral'},
+  saadin:    {x:1205, y:815, name:'Saad ad-Din Isle', f:'island'},
+  ilig:      {x:895,  y:1075,name:'Ilig Isle',   f:'island'}
+};
+
+const BLACK_MARKETS = {
+  bosaso:{rate:0.82,label:'Bosaso Market',desc:'Standard rates. Close to the action.'},
+  eyl:{rate:1.00,label:'Eyl Market',desc:'Fair prices. Reliable buyers.'},
+  hobyo:{rate:1.35,label:'Hobyo Premium',desc:'Best prices. Less navy presence.'}
+};
+
+// FIXED: Medium lane waypoints pushed offshore to avoid clipping Somalia coast
+const LANES = [
+  {wp:[[1600,420],[1200,520],[1000,700],[1100,950],[1400,1300],[1800,1550],[2200,1750]],risk:'high'},
+  {wp:[[2700,370],[2200,370],[1600,380]],risk:'low'},
+  {wp:[[380,435],[750,575],[950,775],[1200,1000],[1500,1250],[1900,1550]],risk:'medium'}
+];
+
+const CARGO_TYPES = [
+  {name:'Crude Oil',base:3500},{name:'Electronics',base:9000},{name:'Food Grains',base:1800},
+  {name:'Vehicles',base:6500},{name:'Textiles',base:2200},{name:'Heavy Machinery',base:5500}
+];
+
+const CONTRACT_DEFS = [
+  {from:'aden',to:'mombasa',cargo:'Electronics',reward:6500},
+  {from:'aden',to:'djibouti',cargo:'Food Grains',reward:2200},
+  {from:'aden',to:'mogadishu',cargo:'Vehicles',reward:5800},
+  {from:'djibouti',to:'mombasa',cargo:'Crude Oil',reward:5500},
+  {from:'djibouti',to:'aden',cargo:'Textiles',reward:1800},
+  {from:'djibouti',to:'mogadishu',cargo:'Heavy Machinery',reward:5000},
+  {from:'mombasa',to:'aden',cargo:'Electronics',reward:6000},
+  {from:'mombasa',to:'djibouti',cargo:'Food Grains',reward:2800},
+  {from:'mombasa',to:'mogadishu',cargo:'Textiles',reward:3200},
+  {from:'mogadishu',to:'aden',cargo:'Crude Oil',reward:4800},
+  {from:'mogadishu',to:'mombasa',cargo:'Vehicles',reward:5200},
+];
+
+const SHIP_DEFS = {
+  patrol:{spd:3.0,hp:120,sz:13,f:'navy',clr:'#5dade2',bclr:'#2e86c1'},
+  coastal:{spd:2.0,hp:90,sz:16,f:'ship',clr:'#82e0aa',bclr:'#27ae60'},
+  skiff:{spd:4.2,hp:45,sz:9,f:'pirate',clr:'#f1948a',bclr:'#e74c3c'},
+  ai_merchant:{spd:1.7,hp:100,sz:17,f:'ship',clr:'#aab7b8',bclr:'#7f8c8d',cargo:5000},
+  ai_pirate:{spd:3.8,hp:40,sz:8,f:'pirate',clr:'#e74c3c',bclr:'#922b21',brd:0.8},
+  ai_navy:{spd:3.0,hp:150,sz:14,f:'navy',clr:'#5dade2',bclr:'#2e86c1'},
+  fishing:{spd:1.0,hp:20,sz:6,f:'neutral',clr:'#d4ac6e',bclr:'#a67c3d'}
+};
+
+const NAMES_MERCHANT = ['MV Horizon','SS Pacific Star','MV Ocean Trader','SS Blue Fortune','MV Coral Sea','SS Golden Wave','MV Northern Light','SS Steel Valley'];
+const NAMES_PIRATE = ['Red Tide Gang','Shark Teeth Crew','Night Raiders','Storm Brothers','Iron Hook Gang','Black Flag Crew'];
+const NAMES_NAVY = ['EUNS Sentinel','EUNS Guardian','EUNS Valiant','EUNS Protector','EUNS Vigilant'];
+const NAMES_CAPTAIN = ['Ahmed','Mohamed','Hassan','Ali','Omar','Yusuf','Ibrahim','Abdi','Farah','Hussein'];
+
+// ======================== STATE ========================
+let G, keys = {}, canvas, ctx, mcanvas, mctx, lastTime = 0, selectedFaction = null, animId;
+let npcId = 0;
+
+function freshState() {
+  return {
+    state:'menu', faction:null, time:0, dt:0,
+    player:null, ships:[], floats:[], messages:[],
+    cam:{x:WW/2,y:WH/2},
+    spawnT:{merchant:4,pirate:6,navy:10,fishing:8},
+    navy:{fuel:100,intercepts:0,score:0},
+    shipCo:{money:5000,contract:null,deliveries:0},
+    pirate:{money:0,loot:0,maxLoot:500,shipsSeized:0,drunk:0},
+    shopOpen:false, paused:false, gameOver:false
+  };
+}
+G = freshState();
+
+// ======================== MARKET THREAT ========================
+const MarketThreat = {
+  bosaso:{heat:0,naval:0,dumped:0,state:'OPEN'},
+  eyl:{heat:0,naval:0,dumped:0,state:'OPEN'},
+  hobyo:{heat:0,naval:0,dumped:0,state:'OPEN'}
+};
+
+function getMarketPrice(mk, base) {
+  const m = MarketThreat[mk];
+  if (!m) return {price:base,state:'OPEN',mult:'1.00',risk:0};
+  const risk = Math.min(1, m.naval*0.85 + m.heat*0.15);
+  const supply = Math.max(0.5, 1 - (m.dumped/2000)*0.4);
+  let price = base * Math.max(0, 1 - risk*1.3) * supply;
+  let state = 'OPEN', mult;
+  if (risk > 0.75) { state='LOCKDOWN'; price=0; mult='0.00'; }
+  else if (risk > 0.5) { state='HIGH_RISK'; price*=0.65; mult=(price/base).toFixed(2); }
+  else { mult=(price/base).toFixed(2); }
+  return {price:Math.floor(price),state,mult,risk};
+}
+
+function updateMarkets(dt) {
+  for (const [k,m] of Object.entries(MarketThreat)) {
+    const port = PORTS[k]; if (!port) continue;
+    let pirates = 0;
+    for (const s of G.ships) if (s.faction==='pirate' && s.alive && dist(s,port)<400) pirates++;
+    m.heat = clamp(m.heat + (Math.min(pirates/3,1)*0.025 - 0.008)*dt, 0, 1);
+    const target = m.heat > 0.35 ? Math.min(m.heat*1.1, 0.9) : Math.max(0, m.naval - 0.012*dt);
+    m.naval = lerp(m.naval, target, 0.04*dt);
+    m.dumped = Math.max(0, m.dumped - 0.5*dt);
+    const risk = Math.min(1, m.naval*0.85 + m.heat*0.15);
+    m.state = risk > 0.75 ? 'LOCKDOWN' : risk > 0.5 ? 'HIGH_RISK' : 'OPEN';
+  }
+}
+
+// ======================== UTILITIES ========================
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)}
+function ang(a,b){return Math.atan2(b.y-a.y,b.x-a.x)}
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v))}
+function rand(a,b){return a+Math.random()*(b-a)}
+function randInt(a,b){return Math.floor(rand(a,b+1))}
+function lerpAng(a,b,t){let d=b-a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return a+d*t}
+function pick(arr){return arr[randInt(0,arr.length-1)]}
+function fmt$(n){return '$'+Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+
+function pip(x,y,poly){
+  let ins=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];
+    if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi) ins=!ins;
+  }
+  return ins;
+}
+function onLand(x,y){return ALL_LAND.some(poly=>pip(x,y,poly))}
+
+function findWater(nx,ny,maxRadius){
+  if(!onLand(nx,ny)) return {x:nx,y:ny};
+  for(let r=10;r<maxRadius;r+=10){
+    for(let a=0;a<Math.PI*2;a+=Math.PI/8){
+      const tx=nx+Math.cos(a)*r, ty=ny+Math.sin(a)*r;
+      if(tx>20&&tx<WW-20&&ty>20&&ty<WH-20&&!onLand(tx,ty)) return {x:tx,y:ty};
+    }
+  }
+  return {x:800,y:800};
+}
+
+function w2s(wx,wy){return{x:wx-G.cam.x,y:wy-G.cam.y}}
+function vis(wx,wy,m=80){return wx>G.cam.x-m&&wx<G.cam.x+canvas.width+m&&wy>G.cam.y-m&&wy<G.cam.y+canvas.height+m}
+
+function addMsg(text,type='info'){
+  G.messages.unshift({text,type,time:G.time});
+  if(G.messages.length>6) G.messages.pop();
+}
+function renderMsgs(){
+  const log=document.getElementById('msg-log');
+  log.innerHTML='';
+  G.messages.forEach(m=>{
+    if(G.time-m.time<7){
+      const el=document.createElement('div');
+      el.className='msg '+m.type;
+      el.textContent=m.text;
+      log.appendChild(el);
+    }
+  });
+}
+
+function addFloat(x,y,text,color='#27ae60'){
+  G.floats.push({x,y,text,color,life:2.0,maxLife:2.0});
+}
+
+// ======================== SHIP CLASS ========================
+class Ship {
+  constructor(x,y,typeKey,isPlayer=false){
+    const d=SHIP_DEFS[typeKey];
+    this.id=npcId++;
+    this.x=x;this.y=y;this.typeKey=typeKey;this.def=d;
+    this.vx=0;this.vy=0;this.angle=rand(0,Math.PI*2);this.tAngle=this.angle;
+    this.baseSpd=d.spd;this.maxSpd=d.spd;this.hp=d.hp;this.maxHp=d.hp;this.sz=d.sz;
+    this.faction=d.f;this.alive=true;this.isPlayer=isPlayer;
+    this.state='idle';this.waypoints=[];this.wpIdx=0;
+    this.boardProgress=0;this.slowed=false;
+    this.cargoValue=d.cargo||0;
+    this.trail=[];this.detRange=180;this.brdRate=d.brd||0;
+    this._target=null;this._fleeBase=null;this.npc=null;
+    if(!isPlayer && typeKey!=='fishing') this.assignNPC(typeKey);
+  }
+  assignNPC(tk){
+    if(tk==='ai_merchant') this.npc={type:'merchant',name:pick(NAMES_MERCHANT),captain:'Capt. '+pick(NAMES_CAPTAIN),cargo:pick(CARGO_TYPES),status:'Underway'};
+    else if(tk==='ai_pirate') this.npc={type:'pirate',name:pick(NAMES_PIRATE),leader:pick(NAMES_CAPTAIN),status:'Hunting'};
+    else if(tk==='ai_navy') this.npc={type:'navy',name:pick(NAMES_NAVY),commander:'Cmdr. '+pick(NAMES_CAPTAIN),status:'Patrol'};
+  }
+  update(dt){
+    if(!this.alive) return;
+    this.trail.push({x:this.x,y:this.y});
+    if(this.trail.length>18) this.trail.shift();
+    if(this.isPlayer) this.updatePlayer(dt);
+    else this.updateAI(dt);
+    this.x=clamp(this.x,15,WW-15);
+    this.y=clamp(this.y,15,WH-15);
+    this.resolveLandCollision();
+  }
+  resolveLandCollision(){
+    let nearPort=false;
+    for(const p of Object.values(PORTS)){
+      if(dist(this,p)<DOCK_RANGE+25){nearPort=true;break;}
+    }
+    if(nearPort) return;
+    if(!onLand(this.x,this.y)) return;
+    const spd = Math.sqrt(this.vx*this.vx+this.vy*this.vy)||0.1;
+    const dirX = this.vx/spd, dirY = this.vy/spd;
+    let escaped = false;
+    for(let i=1;i<=20&&!escaped;i++){
+      const tx=this.x-dirX*i*4, ty=this.y-dirY*i*4;
+      if(tx>20&&tx<WW-20&&ty>20&&ty<WH-20&&!onLand(tx,ty)){this.x=tx;this.y=ty;escaped=true;}
+    }
+    if(!escaped){
+      const px=-dirY, py=dirX;
+      for(let i=1;i<=25&&!escaped;i++){
+        if(!onLand(this.x+px*i*4,this.y+py*i*4)&&this.x+px*i*4>20){this.x+=px*i*4;this.y+=py*i*4;escaped=true;break;}
+        if(!onLand(this.x-px*i*4,this.y-py*i*4)&&this.x-px*i*4>20){this.x-=px*i*4;this.y-=py*i*4;escaped=true;break;}
+      }
+    }
+    if(!escaped){const wp=findWater(this.x,this.y,300);this.x=wp.x;this.y=wp.y;}
+    this.vx*=-0.2;this.vy*=-0.2;
+  }
+  updatePlayer(dt){
+    if(this.state==='boarding'&&this._target&&this._target.alive){
+      const d=dist(this,this._target);
+      if(d>BOARD_RANGE*2.2){
+        this.state='idle';this._target=null;this.boardProgress=0;
+        addMsg('Target escaped range!','alert');return;
+      }
+      // Drunk boarding takes longer
+      const boardTime = G.pirate.drunk > 0 ? BOARD_TIME * 1.8 : BOARD_TIME;
+      this.boardProgress+=dt/boardTime;
+      const pr=document.getElementById('interact-prompt');
+      pr.style.display='block';
+      pr.textContent=this.faction==='pirate'?'BOARDING... '+Math.floor(this.boardProgress*100)+'%':'INTERCEPTING... '+Math.floor(this.boardProgress*100)+'%';
+      if(this.boardProgress>=1.0) this.completeBoarding();
+      return;
+    }
+    let ax=0,ay=0;
+    if(keys['w']||keys['arrowup']) ay=-1;
+    if(keys['s']||keys['arrowdown']) ay=1;
+    if(keys['a']||keys['arrowleft']) ax=-1;
+    if(keys['d']||keys['arrowright']) ax=1;
+    if(ax||ay){
+      const l=Math.sqrt(ax*ax+ay*ay);ax/=l;ay/=l;
+      this.vx+=ax*this.maxSpd*0.08;this.vy+=ay*this.maxSpd*0.08;
+      this.tAngle=Math.atan2(ay,ax);
+    }
+    // Drunk wobble
+    if(G.faction==='pirate'&&G.pirate.drunk>0){
+      G.pirate.drunk-=dt;
+      this.vx+=(Math.random()-0.5)*this.maxSpd*0.18;
+      this.vy+=(Math.random()-0.5)*this.maxSpd*0.18;
+      this.maxSpd=this.baseSpd*0.65;
+      if(G.pirate.drunk<=0){
+        G.pirate.drunk=0;
+        addMsg('Sober now. Steady steering.','info');
+      }
+    }
+    if(G.faction==='navy'&&(ax||ay)) G.navy.fuel=Math.max(0,G.navy.fuel-dt*0.8);
+    if(G.faction==='navy'&&G.navy.fuel<=0) this.maxSpd=Math.min(this.maxSpd,0.5);
+    if(G.faction==='pirate'&&keys[' ']&&!this.slowed&&G.pirate.drunk<=0) this.maxSpd=this.baseSpd*1.4;
+    else if(G.faction==='pirate'&&!this.slowed&&G.pirate.drunk<=0) this.maxSpd=this.baseSpd;
+    this.vx*=0.95;this.vy*=0.95;
+    let spd=Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    if(spd>this.maxSpd){this.vx=this.vx/spd*this.maxSpd;this.vy=this.vy/spd*this.maxSpd;}
+    this.angle=lerpAng(this.angle,this.tAngle,0.1);
+    this.x+=this.vx;this.y+=this.vy;
+  }
+  updateAI(dt){
+    switch(this.state){
+      case 'moving': this.followWP(dt); break;
+      case 'hunting': this.hunt(dt); break;
+      case 'fleeing': this.flee(dt); break;
+      case 'boarding': this.doBoard(dt); break;
+      case 'patrol': this.patrol(dt); break;
+    }
+    this.vx*=0.96;this.vy*=0.96;
+    let spd=Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    if(spd>this.maxSpd){this.vx=this.vx/spd*this.maxSpd;this.vy=this.vy/spd*this.maxSpd;}
+    if(spd>0.15) this.angle=lerpAng(this.angle,Math.atan2(this.vy,this.vx),0.08);
+    this.x+=this.vx;this.y+=this.vy;
+  }
+  followWP(dt){
+    if(!this.waypoints.length||this.wpIdx>=this.waypoints.length){this.alive=false;return;}
+    const wp=this.waypoints[this.wpIdx];
+    if(dist(this,wp)<35){this.wpIdx++;return;}
+    const a=ang(this,wp);
+    this.vx+=Math.cos(a)*this.maxSpd*0.05;
+    this.vy+=Math.sin(a)*this.maxSpd*0.05;
+  }
+  hunt(dt){
+    if(!this._target||!this._target.alive||this._target.state==='looted'){
+      this.state='idle';this._target=null;
+      if(this.npc) this.npc.status='Searching';return;
+    }
+    for(const s of G.ships){
+      if(s.faction==='navy'&&s.alive&&dist(this,s)<200){
+        this.state='fleeing';this._fleeBase=this.findBase();
+        if(this.npc) this.npc.status='Fleeing!';return;
+      }
+    }
+    if(G.player&&G.player.faction==='navy'&&G.player.alive&&dist(this,G.player)<200){
+      this.state='fleeing';this._fleeBase=this.findBase();
+      if(this.npc) this.npc.status='Fleeing!';return;
+    }
+    if(dist(this,this._target)<BOARD_RANGE){
+      this.state='boarding';this.boardProgress=0;
+      if(this.npc) this.npc.status='Boarding!';return;
+    }
+    const a=ang(this,this._target);
+    this.vx+=Math.cos(a)*this.maxSpd*0.045;
+    this.vy+=Math.sin(a)*this.maxSpd*0.045;
+    if(this.npc) this.npc.status='Engaging';
+  }
+  flee(dt){
+    if(!this._fleeBase){this._fleeBase=this.findBase();return;}
+    if(dist(this,this._fleeBase)<50){this.state='idle';this._fleeBase=null;if(this.npc) this.npc.status='Laying low';return;}
+    const a=ang(this,this._fleeBase);
+    this.vx+=Math.cos(a)*this.maxSpd*0.06;
+    this.vy+=Math.sin(a)*this.maxSpd*0.06;
+  }
+  doBoard(dt){
+    if(!this._target||!this._target.alive){this.state='idle';this._target=null;return;}
+    this.boardProgress+=dt/BOARD_TIME;
+    if(this.boardProgress>=1.0){
+      if(this.faction==='pirate'&&this._target.faction==='ship'){
+        this._target.state='looted';this._target.cargoValue=0;this._target.alive=false;
+        addMsg((this._target.npc?.name||'Merchant')+' looted by '+(this.npc?.name||'pirates'),'alert');
+      } else if(this.faction==='navy'&&this._target.faction==='pirate'){
+        this._target.alive=false;
+        addMsg((this._target.npc?.name||'Pirate skiff')+' intercepted','info');
+      }
+      this.state='idle';this._target=null;this.boardProgress=0;
+    }
+  }
+  patrol(dt){
+    if(!this.waypoints.length){
+      const cx=rand(800,2400),cy=rand(600,1800),r=rand(200,400);
+      for(let i=0;i<8;i++){
+        const a=(i/8)*Math.PI*2;
+        this.waypoints.push({x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r});
+      }
+    }
+    this.followWP(dt);
+  }
+  findBase(){
+    let best=null,bd=Infinity;
+    for(const p of Object.values(PORTS)){
+      if(p.f===this.faction||p.f==='neutral'){
+        const d=dist(this,p);if(d<bd){bd=d;best=p;}
+      }
+    }
+    return best||{x:WW/2,y:WH/2};
+  }
+  completeBoarding(){
+    const t=this._target;
+    if(!t||!t.alive){this.state='idle';this._target=null;this.boardProgress=0;return;}
+    if(this.faction==='pirate'&&t.faction==='ship'){
+      const loot=Math.floor(t.cargoValue*0.7);
+      G.pirate.loot=Math.min(G.pirate.maxLoot,G.pirate.loot+loot);
+      G.pirate.shipsSeized++;
+      addFloat(this.x,this.y-20,'+'+fmt$(loot)+' loot','#f39c12');
+      addMsg('Boarded '+(t.npc?.name||'vessel')+'! +'+fmt$(loot)+' loot','success');
+      t.state='looted';t.cargoValue=0;t.alive=false;
+    } else if(this.faction==='navy'&&t.faction==='pirate'){
+      G.navy.score+=200;G.navy.intercepts++;
+      addFloat(this.x,this.y-20,'+200 credits','#3498db');
+      addMsg('Pirate '+(t.npc?.name||'vessel')+' intercepted! +200','success');
+      t.alive=false;
+    }
+    this.state='idle';this._target=null;this.boardProgress=0;
+    document.getElementById('interact-prompt').style.display='none';
+    updateHUD();
+  }
+  draw(ctx){
+    if(!vis(this.x,this.y,this.sz*4)) return;
+    const s=w2s(this.x,this.y);
+    ctx.save();ctx.translate(s.x,s.y);ctx.rotate(this.angle);
+    ctx.fillStyle=this.def.bclr;
+    ctx.beginPath();
+    ctx.moveTo(-this.sz,0);ctx.lineTo(this.sz*0.6,-this.sz*0.55);
+    ctx.lineTo(this.sz*1.1,0);ctx.lineTo(this.sz*0.6,this.sz*0.55);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=this.def.clr;
+    ctx.fillRect(-this.sz*0.25,-this.sz*0.28,this.sz*0.85,this.sz*0.56);
+    const fc=this.faction==='navy'?'#3498db':this.faction==='pirate'?'#e74c3c':this.faction==='ship'?'#27ae60':'#888';
+    ctx.fillStyle=fc;ctx.beginPath();ctx.arc(0,0,this.sz*0.22,0,Math.PI*2);ctx.fill();
+    if(this.isPlayer){
+      ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(0,0,this.sz*0.5,0,Math.PI*2);ctx.stroke();
+    }
+    if(this.state==='boarding'){
+      ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(0,0,this.sz*0.8,-Math.PI/2,-Math.PI/2+Math.PI*2*this.boardProgress);ctx.stroke();
+    }
+    ctx.restore();
+    if(this.trail.length>1){
+      ctx.strokeStyle=this.def.clr+'30';ctx.lineWidth=2;ctx.beginPath();
+      this.trail.forEach((p,i)=>{const t=w2s(p.x,p.y);i===0?ctx.moveTo(t.x,t.y):ctx.lineTo(t.x,t.y);});
+      ctx.stroke();
+    }
+    if(!this.isPlayer&&this.hp<this.maxHp){
+      const bx=s.x-this.sz,by=s.y-this.sz-10;
+      ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(bx,by,this.sz*2,4);
+      ctx.fillStyle=this.hp/this.maxHp>0.5?'#27ae60':'#e74c3c';
+      ctx.fillRect(bx,by,this.sz*2*(this.hp/this.maxHp),4);
+    }
+    if(this.slowed&&!this.isPlayer){
+      ctx.fillStyle='rgba(231,76,60,0.7)';ctx.font='bold 9px Rajdhani';ctx.textAlign='center';
+      ctx.fillText('SLOWED',s.x,s.y-this.sz-14);
+    }
+    if(this.npc&&!this.isPlayer&&G.player&&dist(G.player,this)<130){
+      const ix=s.x,iy=s.y-this.sz-22;
+      const label=this.npc.name||'Unknown';
+      ctx.fillStyle='rgba(8,15,25,0.9)';
+      const tw=ctx.measureText(label).width+12;
+      ctx.fillRect(ix-tw/2,iy-10,tw,20);
+      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.strokeRect(ix-tw/2,iy-10,tw,20);
+      ctx.fillStyle='#ecf0f1';ctx.font='10px Rajdhani';ctx.textAlign='center';
+      ctx.fillText(label,ix,iy+4);
+    }
+  }
+  damage(amt){
+    this.hp=Math.max(0,this.hp-amt);
+    if(this.hp<=0){
+      this.alive=false;
+      if(this.isPlayer) doGameOver();
+      else if(this.npc) addMsg((this.npc.name||'Vessel')+' destroyed','alert');
+      return true;
+    }
+    return false;
+  }
+}
+
+// ======================== SLOW-DOWN SYSTEM ========================
+function applySlowdowns(){
+  for(const s of G.ships){
+    if(!s.alive) continue;
+    s.slowed=false;s.maxSpd=s.baseSpd;
+    if(s.faction==='ship'){
+      for(const p of G.ships){
+        if(p.faction==='pirate'&&p.alive&&dist(s,p)<SLOW_RANGE){
+          s.maxSpd=s.baseSpd*0.3;s.slowed=true;break;
+        }
+      }
+    }
+    if(s.faction==='pirate'){
+      for(const n of G.ships){
+        if(n.faction==='navy'&&n.alive&&dist(s,n)<SLOW_RANGE){
+          s.maxSpd=s.baseSpd*0.3;s.slowed=true;break;
+        }
+      }
+    }
+  }
+  const si=document.getElementById('slow-indicator');
+  if(G.player&&G.player.slowed) si.style.display='block';
+  else si.style.display='none';
+}
+
+// ======================== DOCK / SHOP SYSTEM ========================
+function openDock(portKey){
+  const port=PORTS[portKey];
+  const panel=document.getElementById('shop-panel');
+  let html='<h3>'+port.name+'</h3>';
+
+  // ===== ISLAND: Rum + basic repair for pirates =====
+  if(G.faction==='pirate'&&port.f==='island'){
+    html+='<div class="shop-sub">A quiet island hideout. Safe from navy patrols.</div>';
+    html+='<div class="shop-section-title">Rum</div>';
+    if(G.pirate.drunk>0){
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#d4a017">Already drinking!</div>';
+      html+='<div class="si-desc">'+Math.ceil(G.pirate.drunk)+'s of wobbly steering remaining</div></div></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Buy Rum</div>';
+      html+='<div class="si-desc">Wobbly steering for '+RUM_DURATION+'s. Boarding takes longer too.</div></div>';
+      html+='<button class="si-btn rum-btn '+(G.pirate.money>=RUM_COST?'can-buy':'cant-buy')+'" '+(G.pirate.money>=RUM_COST?'':'disabled')+' data-action="buyrum">'+fmt$(RUM_COST)+'</button></div>';
+    }
+    html+='<div class="shop-section-title">Patch Hull</div>';
+    const dmg=G.player.maxHp-G.player.hp;
+    if(dmg>0){
+      const cost=Math.floor(dmg*4);
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Patch Hull ('+Math.floor(dmg)+' HP)</div>';
+      html+='<div class="si-desc">Basic repairs, pricier than port</div></div>';
+      html+='<button class="si-btn repair-btn '+(G.pirate.money>=cost?'':'cant-buy')+'" '+(G.pirate.money>=cost?'':'disabled')+' data-action="piraterepair" data-cost="'+cost+'">'+fmt$(cost)+'</button></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#27ae60">Hull intact</div></div></div>';
+    }
+  }
+  // ===== PIRATE BLACK MARKET =====
+  else if(G.faction==='pirate'&&port.f==='pirate'){
+    const bm=BLACK_MARKETS[portKey];
+    html+='<div class="shop-sub">'+bm.desc+'</div>';
+    const mt=MarketThreat[portKey];
+    const sc=mt.state==='LOCKDOWN'?'market-lock':mt.state==='HIGH_RISK'?'market-risk':'market-open';
+    html+='<div class="market-badge '+sc+'">'+mt.state+' &bull; Navy: '+Math.round(mt.naval*100)+'% &bull; Heat: '+Math.round(mt.heat*100)+'%</div>';
+    html+='<div class="shop-section-title">Repair Hull</div>';
+    const dmg=G.player.maxHp-G.player.hp;
+    if(dmg>0){
+      const cost=Math.floor(dmg*3);
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Fix Hull ('+Math.floor(dmg)+' HP)</div>';
+      html+='<div class="si-desc">Restore to full integrity</div></div>';
+      html+='<button class="si-btn repair-btn '+(G.pirate.money>=cost?'':'cant-buy')+'" '+(G.pirate.money>=cost?'':'disabled')+' data-action="piraterepair" data-cost="'+cost+'">'+fmt$(cost)+'</button></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#27ae60">Hull at full integrity</div></div></div>';
+    }
+    html+='<div class="shop-section-title">Sell Loot</div>';
+    if(G.pirate.loot<=0){
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#666">No loot to sell</div><div class="si-desc">Board merchant ships first</div></div></div>';
+    } else {
+      const avgBase=G.pirate.loot*8;
+      const pr=getMarketPrice(portKey,avgBase);
+      const canSell=pr.state!=='LOCKDOWN';
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Sell All Loot ('+Math.floor(G.pirate.loot)+' units)</div>';
+      html+='<div class="si-desc">Est. value: '+fmt$(pr.price)+' (x'+pr.mult+')</div></div>';
+      html+='<button class="si-btn '+(canSell?'can-buy':'cant-buy')+'" '+(canSell?'':'disabled')+' data-action="sellall" data-port="'+portKey+'">'+(pr.state==='LOCKDOWN'?'CLOSED':fmt$(pr.price))+'</button></div>';
+    }
+    html+='<div class="shop-section-title">Upgrades</div>';
+    [{name:'Faster Engine',cost:1000,desc:'+20% base speed',id:'spd'},{name:'Reinforced Hull',cost:1200,desc:'+40 max HP',id:'hp'},{name:'Larger Hold',cost:1500,desc:'+150 loot capacity',id:'cap'}].forEach(u=>{
+      const can=G.pirate.money>=u.cost;
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">'+u.name+'</div><div class="si-desc">'+u.desc+'</div></div>';
+      html+='<button class="si-btn '+(can?'can-buy':'cant-buy')+'" '+(can?'':'disabled')+' data-action="upgrade" data-id="'+u.id+'" data-cost="'+u.cost+'">'+fmt$(u.cost)+'</button></div>';
+    });
+    html+='<div style="font-size:9px;color:#555;margin-top:10px;line-height:1.4">Prices drop when navy patrols increase. Sell fast or move to a safer market.</div>';
+  }
+  // ===== SHIPPING =====
+  else if(G.faction==='shipping'){
+    html+='<div class="shop-sub">Maritime cargo services</div>';
+    html+='<div class="shop-section-title">Repair Hull</div>';
+    const dmg=G.player.maxHp-G.player.hp;
+    if(dmg>0){
+      const cost=Math.floor(dmg*2);
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Fix Hull ('+Math.floor(dmg)+' HP)</div></div>';
+      html+='<button class="si-btn repair-btn '+(G.shipCo.money>=cost?'':'cant-buy')+'" '+(G.shipCo.money>=cost?'':'disabled')+' data-action="repair" data-cost="'+cost+'">'+fmt$(cost)+'</button></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#27ae60">Hull at full integrity</div></div></div>';
+    }
+    const contract=G.shipCo.contract;
+    if(contract&&portKey===contract.to){
+      html+='<div class="shop-section-title">Cargo Delivery</div>';
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#f39c12">Deliver '+contract.cargo+'</div>';
+      html+='<div class="si-desc">Destination reached! Collect payment.</div></div>';
+      html+='<button class="si-btn deliver-btn" data-action="deliver">DELIVER +'+fmt$(contract.reward)+'</button></div>';
+    } else if(contract){
+      html+='<div class="shop-section-title">Active Contract</div>';
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">'+contract.cargo+'</div>';
+      html+='<div class="si-desc">Deliver to '+PORTS[contract.to].name+' for '+fmt$(contract.reward)+'</div></div>';
+      html+='<span style="color:#e74c3c;font-size:10px;padding:0 9px">IN TRANSIT</span></div>';
+    } else {
+      const available=CONTRACT_DEFS.filter(c=>c.from===portKey);
+      html+='<div class="shop-section-title">Available Contracts</div>';
+      if(!available.length) html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#666">No contracts here</div><div class="si-desc">Try Aden, Djibouti, or Mombasa</div></div></div>';
+      for(const c of available){
+        const destPort=PORTS[c.to];const d=Math.floor(dist(port,destPort));
+        html+='<div class="shop-item"><div class="si-info"><div class="si-name">'+c.cargo+'</div>';
+        html+='<div class="si-desc">'+destPort.name+' &bull; '+d+'km &bull; '+fmt$(c.reward)+'</div></div>';
+        html+='<button class="si-btn can-buy" data-action="pickup" data-cargo="'+c.cargo+'" data-to="'+c.to+'" data-reward="'+c.reward+'">ACCEPT</button></div>';
+      }
+    }
+    html+='<div class="shop-section-title">Upgrades</div>';
+    html+='<div class="shop-item"><div class="si-info"><div class="si-name">Engine Tune +15%</div><div class="si-desc">One-time speed boost</div></div>';
+    html+='<button class="si-btn '+(G.shipCo.money>=2000?'can-buy':'cant-buy')+'" '+(G.shipCo.money>=2000?'':'disabled')+' data-action="shipspeed" data-cost="2000">'+fmt$(2000)+'</button></div>';
+  }
+  // ===== NAVY =====
+  else if(G.faction==='navy'){
+    html+='<div class="shop-sub">Naval resupply station</div>';
+    html+='<div class="shop-section-title">Refuel</div>';
+    if(G.navy.fuel<100){
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Refuel ('+Math.floor(100-G.navy.fuel)+'%)</div></div>';
+      html+='<button class="si-btn can-buy" data-action="refuel">FREE</button></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#27ae60">Fuel at 100%</div></div></div>';
+    }
+    html+='<div class="shop-section-title">Repair</div>';
+    if(G.player.hp<G.player.maxHp){
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name">Repair Hull</div></div>';
+      html+='<button class="si-btn repair-btn can-buy" data-action="navyrepair">FREE</button></div>';
+    } else {
+      html+='<div class="shop-item"><div class="si-info"><div class="si-name" style="color:#27ae60">Hull at 100%</div></div></div>';
+    }
+    html+='<div class="shop-section-title">Service Record</div>';
+    html+='<div class="shop-item"><div class="si-info"><div class="si-name">Pirates Intercepted</div></div><span style="color:#3498db;font-weight:600">'+G.navy.intercepts+'</span></div>';
+    html+='<div class="shop-item"><div class="si-info"><div class="si-name">Total Score</div></div><span style="color:#3498db;font-weight:600">'+fmt$(G.navy.score)+'</span></div>';
+  } else {
+    html+='<div class="shop-sub">No services available here for your faction.</div>';
+  }
+
+  document.getElementById('shop-content').innerHTML=html;
+  panel.style.display='block';
+  G.shopOpen=true;
+  panel.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.addEventListener('click',function(){handleShopAction(this.dataset, portKey);});
+  });
+}
+
+function handleShopAction(data, currentPortKey){
+  const action=data.action;
+  if(action==='sellall'){
+    const portKey=data.port;
+    const pr=getMarketPrice(portKey,G.pirate.loot*8);
+    if(pr.state==='LOCKDOWN'){addMsg('Market locked down!','alert');return;}
+    if(G.pirate.loot<=0){addMsg('No loot!','alert');return;}
+    const earned=pr.price;G.pirate.money+=earned;
+    MarketThreat[portKey].dumped+=earned*0.3;
+    addFloat(G.player.x,G.player.y-20,'+'+fmt$(earned),'#27ae60');
+    addMsg('Sold loot for '+fmt$(earned),'success');G.pirate.loot=0;
+    updateHUD();openDock(portKey);
+  }
+  else if(action==='buyrum'){
+    if(G.pirate.money<RUM_COST||G.pirate.drunk>0) return;
+    G.pirate.money-=RUM_COST;G.pirate.drunk=RUM_DURATION;
+    addMsg('You bought rum! Wobbly steering for '+RUM_DURATION+'s.','warn');
+    updateHUD();closeShop();
+  }
+  else if(action==='piraterepair'){
+    const cost=parseInt(data.cost);
+    if(G.pirate.money<cost) return;
+    G.pirate.money-=cost;G.player.hp=G.player.maxHp;
+    addMsg('Hull repaired!','success');updateHUD();openDock(currentPortKey);
+  }
+  else if(action==='upgrade'){
+    const id=data.id,cost=parseInt(data.cost);
+    if(G.pirate.money<cost) return;G.pirate.money-=cost;
+    if(id==='spd'){G.player.baseSpd*=1.2;G.player.maxSpd=G.player.baseSpd;addMsg('Engine upgraded!','success');}
+    else if(id==='hp'){G.player.maxHp+=40;G.player.hp+=40;addMsg('Hull reinforced!','success');}
+    else if(id==='cap'){G.pirate.maxLoot+=150;addMsg('Hold expanded!','success');}
+    updateHUD();openDock(currentPortKey);
+  }
+  else if(action==='pickup'){
+    G.shipCo.contract={cargo:data.cargo,from:currentPortKey,to:data.to,reward:parseInt(data.reward)};
+    addMsg('Contract: Deliver '+data.cargo+' to '+PORTS[data.to].name,'success');
+    document.getElementById('contract-hud').style.display='block';closeShop();updateHUD();
+  }
+  else if(action==='deliver'){
+    if(!G.shipCo.contract) return;
+    const reward=G.shipCo.contract.reward;G.shipCo.money+=reward;G.shipCo.deliveries++;
+    addFloat(G.player.x,G.player.y-20,'+'+fmt$(reward),'#27ae60');
+    addMsg('Delivered '+G.shipCo.contract.cargo+'! +'+fmt$(reward),'success');
+    G.shipCo.contract=null;document.getElementById('contract-hud').style.display='none';closeShop();updateHUD();
+  }
+  else if(action==='repair'){
+    const cost=parseInt(data.cost);
+    if(G.shipCo.money<cost) return;G.shipCo.money-=cost;G.player.hp=G.player.maxHp;
+    addMsg('Hull repaired!','success');updateHUD();openDock(currentPortKey);
+  }
+  else if(action==='shipspeed'){
+    const cost=parseInt(data.cost);
+    if(G.shipCo.money<cost) return;G.shipCo.money-=cost;G.player.baseSpd*=1.15;G.player.maxSpd=G.player.baseSpd;
+    addMsg('Engine tuned! +15% speed','success');updateHUD();closeShop();
+  }
+  else if(action==='refuel'){
+    G.navy.fuel=100;G.player.maxSpd=G.player.baseSpd;
+    addMsg('Refueled to 100%','success');updateHUD();closeShop();
+  }
+  else if(action==='navyrepair'){
+    G.player.hp=G.player.maxHp;addMsg('Hull repaired!','success');updateHUD();closeShop();
+  }
+}
+
+function closeShop(){
+  document.getElementById('shop-panel').style.display='none';
+  G.shopOpen=false;
+}
+
+// ======================== INTERACTION ========================
+function checkInteraction(){
+  if(!G.player||G.shopOpen||G.paused) return;
+  for(const [key,port] of Object.entries(PORTS)){
+    if(dist(G.player,port)<DOCK_RANGE){openDock(key);return;}
+  }
+  if(G.faction==='pirate'){
+    for(const s of G.ships){
+      if(s!==G.player&&s.faction==='ship'&&s.alive&&s.state!=='looted'&&dist(G.player,s)<BOARD_RANGE){
+        G.player._target=s;G.player.state='boarding';G.player.boardProgress=0;
+        addMsg('Boarding '+(s.npc?.name||'vessel')+'...','info');return;
+      }
+    }
+  }
+  if(G.faction==='navy'){
+    for(const s of G.ships){
+      if(s!==G.player&&s.faction==='pirate'&&s.alive&&dist(G.player,s)<INTERCEPT_RANGE){
+        G.player._target=s;G.player.state='boarding';G.player.boardProgress=0;
+        addMsg('Intercepting pirate vessel...','alert');return;
+      }
+    }
+  }
+}
+
+// ======================== HUD ========================
+function updateHUD(){
+  if(!G.player) return;
+  document.getElementById('hp-bar').style.width=(G.player.hp/G.player.maxHp*100)+'%';
+  // Drunk overlay
+  if(G.faction==='pirate'){
+    document.getElementById('drunk-overlay').style.display=G.pirate.drunk>0?'block':'none';
+    document.getElementById('drunk-hud').style.display=G.pirate.drunk>0?'block':'none';
+    if(G.pirate.drunk>0) document.getElementById('drunk-hud').textContent='DRUNK '+Math.ceil(G.pirate.drunk)+'s';
+  }
+  if(G.faction==='navy'){
+    document.getElementById('fuel-bar').style.width=G.navy.fuel+'%';
+    document.getElementById('resource-label').textContent='FUEL';
+    document.getElementById('credits-display').textContent=fmt$(G.navy.score);
+    document.getElementById('loot-label').style.display='none';
+    document.getElementById('loot-bar-wrap').style.display='none';
+    document.getElementById('threat-label').textContent='INTERCEPTS';
+    document.getElementById('threat-display').textContent=G.navy.intercepts;
+    document.getElementById('threat-display').style.color='#3498db';
+  } else if(G.faction==='shipping'){
+    document.getElementById('fuel-bar').style.width=Math.min(100,G.shipCo.money/100)+'%';
+    document.getElementById('resource-label').textContent='BALANCE';
+    document.getElementById('credits-display').textContent=fmt$(G.shipCo.money);
+    document.getElementById('loot-label').style.display='none';
+    document.getElementById('loot-bar-wrap').style.display='none';
+    document.getElementById('threat-label').textContent='DELIVERIES';
+    document.getElementById('threat-display').textContent=G.shipCo.deliveries;
+    document.getElementById('threat-display').style.color='#27ae60';
+  } else if(G.faction==='pirate'){
+    document.getElementById('fuel-bar').style.width=(G.pirate.loot/G.pirate.maxLoot*100)+'%';
+    document.getElementById('resource-label').textContent='LOOT HOLD';
+    document.getElementById('credits-display').textContent=fmt$(G.pirate.money);
+    document.getElementById('loot-label').style.display='block';
+    document.getElementById('loot-bar-wrap').style.display='block';
+    document.getElementById('loot-bar').style.width=(G.pirate.loot/G.pirate.maxLoot*100)+'%';
+    let minD=Infinity,nearest=null;
+    for(const [k,p] of Object.entries(PORTS)){
+      if(p.f==='pirate'){const d=dist(G.player,p);if(d<minD){minD=d;nearest=k;}}
+    }
+    if(nearest&&minD<600){
+      const mt=MarketThreat[nearest];
+      const txt=mt.state==='LOCKDOWN'?'CRITICAL':mt.state==='HIGH_RISK'?'HIGH':'LOW';
+      const clr=mt.state==='LOCKDOWN'?'#e74c3c':mt.state==='HIGH_RISK'?'#f39c12':'#27ae60';
+      document.getElementById('threat-display').textContent=txt;
+      document.getElementById('threat-display').style.color=clr;
+    } else {
+      document.getElementById('threat-display').textContent='LOW';
+      document.getElementById('threat-display').style.color='#27ae60';
+    }
+    document.getElementById('threat-label').textContent='THREAT LEVEL';
+  }
+  if(G.faction==='shipping'&&G.shipCo.contract){
+    const c=G.shipCo.contract;const dest=PORTS[c.to];const d=Math.floor(dist(G.player,dest));
+    document.getElementById('ch-cargo').textContent=c.cargo;
+    document.getElementById('ch-dest').textContent='\u2192 '+dest.name;
+    document.getElementById('ch-reward').textContent='+ '+fmt$(c.reward);
+    document.getElementById('ch-dist').textContent=d+'km away';
+  }
+}
+
+// ======================== GAME OVER ========================
+function doGameOver(){
+  G.gameOver=true;
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('shop-panel').style.display='none';
+  document.getElementById('contract-hud').style.display='none';
+  document.getElementById('slow-indicator').style.display='none';
+  document.getElementById('pause-overlay').style.display='none';
+  document.getElementById('drunk-overlay').style.display='none';
+  document.getElementById('drunk-hud').style.display='none';
+  document.getElementById('gameover-screen').style.display='flex';
+  const s=document.getElementById('go-stats');s.innerHTML='';
+  if(G.faction==='navy'){
+    document.getElementById('go-title').textContent='PATROL ENDED';
+    document.getElementById('go-sub').textContent='Your vessel was lost. The shipping lanes remain dangerous.';
+    s.innerHTML+='<div>Intercepts<span>'+G.navy.intercepts+'</span></div>';
+    s.innerHTML+='<div>Final Score<span>'+fmt$(G.navy.score)+'</span></div>';
+  } else if(G.faction==='shipping'){
+    document.getElementById('go-title').textContent='CARGO LOST';
+    document.getElementById('go-sub').textContent='Your ship went down with all cargo.';
+    s.innerHTML+='<div>Total Earnings<span>'+fmt$(G.shipCo.money)+'</span></div>';
+    s.innerHTML+='<div>Deliveries Completed<span>'+G.shipCo.deliveries+'</span></div>';
+  } else {
+    document.getElementById('go-title').textContent='CREW LOST';
+    document.getElementById('go-sub').textContent='Your skiff was destroyed. The markets will forget you.';
+    s.innerHTML+='<div>Ships Seized<span>'+G.pirate.shipsSeized+'</span></div>';
+    s.innerHTML+='<div>Total Earnings<span>'+fmt$(G.pirate.money)+'</span></div>';
+  }
+}
+
+// ======================== SPAWNING ========================
+function spawnInitialNPCs(){
+  LANES.forEach(lane=>{
+    const s=lane.wp[0];
+    const safe=findWater(s[0]+rand(-30,30),s[1]+rand(-30,30),120);
+    const ship=new Ship(safe.x,safe.y,'ai_merchant');
+    ship.waypoints=lane.wp.map(p=>({x:p[0],y:p[1]}));
+    ship.state='moving';G.ships.push(ship);
+  });
+  Object.values(PORTS).forEach(p=>{
+    if(p.f==='pirate'){
+      for(let i=0;i<2;i++){
+        const safe=findWater(p.x+rand(-120,120),p.y+rand(-120,120),150);
+        const ship=new Ship(safe.x,safe.y,'ai_pirate');
+        ship.state='idle';G.ships.push(ship);
+      }
+    }
+  });
+  for(let i=0;i<3;i++){
+    const safe=findWater(rand(600,2600),rand(500,1800),200);
+    const ship=new Ship(safe.x,safe.y,'ai_navy');
+    ship.state='patrol';G.ships.push(ship);
+  }
+  for(let i=0;i<6;i++){
+    const safe=findWater(rand(300,2800),rand(500,2100),200);
+    const ship=new Ship(safe.x,safe.y,'fishing');
+    ship.state='idle';G.ships.push(ship);
+  }
+}
+
+function spawnNPC(type,nearPort){
+  let x,y;
+  if(nearPort){x=nearPort.x+rand(-150,150);y=nearPort.y+rand(-150,150);}
+  else{x=rand(300,WW-300);y=rand(500,WH-300);}
+  const safe=findWater(x,y,200);
+  const ship=new Ship(safe.x,safe.y,type);
+  if(type==='ai_merchant'){
+    const lane=pick(LANES);
+    ship.waypoints=lane.wp.map(p=>({x:p[0],y:p[1]}));
+    ship.state='moving';
+  } else if(type==='ai_navy'){ship.state='patrol';}
+  G.ships.push(ship);
+}
+
+// ======================== AI DECISIONS ========================
+let aiDecisionTimer=0;
+function updateAIDecisions(dt){
+  aiDecisionTimer+=dt;
+  if(aiDecisionTimer<1.5) return;
+  aiDecisionTimer=0;
+  for(const s of G.ships){
+    if(!s.alive||s.isPlayer||s.typeKey==='fishing') continue;
+    if(s.state!=='idle') continue;
+    if(s.typeKey==='ai_pirate'){
+      let best=null,bd=Infinity;
+      for(const t of G.ships){
+        if(t.faction==='ship'&&t.alive&&t.state!=='looted'){
+          const d=dist(s,t);if(d<500&&d<bd){bd=d;best=t;}
+        }
+      }
+      if(G.player&&G.player.faction==='shipping'&&G.player.alive){
+        const d=dist(s,G.player);if(d<500&&d<bd){bd=d;best=G.player;}
+      }
+      if(best){
+        s._target=best;s.state='hunting';
+        if(s.npc) s.npc.status='Targeting '+((best.npc&&best.npc.name)||'vessel');
+      }
+    } else if(s.typeKey==='ai_navy'){
+      let best=null,bd=Infinity;
+      for(const t of G.ships){
+        if(t.faction==='pirate'&&t.alive){const d=dist(s,t);if(d<350&&d<bd){bd=d;best=t;}}
+      }
+      if(G.player&&G.player.faction==='pirate'&&G.player.alive){
+        const d=dist(s,G.player);if(d<350&&d<bd){bd=d;best=G.player;}
+      }
+      if(best){
+        s._target=best;s.state='hunting';
+        if(s.npc) s.npc.status='Pursuing pirates';
+      }
+    }
+  }
+}
+
+// ======================== RENDERING ========================
+function render(){
+  ctx.fillStyle='#0a1628';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  for(let i=0;i<10;i++){
+    ctx.strokeStyle='rgba(15,45,90,'+(0.06+i*0.008)+')';ctx.lineWidth=1;ctx.beginPath();
+    const baseY=((G.cam.y*0.3+i*90+G.time*8)%(canvas.height+200))-100;
+    for(let x=0;x<canvas.width;x+=10){
+      const y=baseY+Math.sin((x+G.cam.x)*0.007+G.time*0.4+i*0.7)*18+Math.sin((x+G.cam.x)*0.013+G.time*0.25)*10;
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.strokeStyle='rgba(25,50,80,0.25)';ctx.lineWidth=1;
+  const gs=120;
+  const gsx=Math.floor(G.cam.x/gs)*gs,gsy=Math.floor(G.cam.y/gs)*gs;
+  for(let x=gsx;x<G.cam.x+canvas.width+gs;x+=gs){
+    const s=w2s(x,0);ctx.beginPath();ctx.moveTo(s.x,0);ctx.lineTo(s.x,canvas.height);ctx.stroke();
+  }
+  for(let y=gsy;y<G.cam.y+canvas.height+gs;y+=gs){
+    const s=w2s(0,y);ctx.beginPath();ctx.moveTo(0,s.y);ctx.lineTo(canvas.width,s.y);ctx.stroke();
+  }
+  // Mainland
+  ctx.fillStyle='#1c2d40';
+  drawLandWorld(ctx,LAND_YEMEN);drawLandWorld(ctx,LAND_SOMALIA);
+  // Islands (sandy color)
+  ctx.fillStyle='#3d3520';
+  ISLAND_POLYS.forEach(poly=>drawLandWorld(ctx,poly));
+  // Coastlines
+  ctx.strokeStyle='rgba(60,90,120,0.4)';ctx.lineWidth=2;
+  drawLandBorder(ctx,LAND_YEMEN);drawLandBorder(ctx,LAND_SOMALIA);
+  ctx.strokeStyle='rgba(120,100,50,0.3)';ctx.lineWidth=1;
+  ISLAND_POLYS.forEach(poly=>drawLandBorder(ctx,poly));
+  // Lanes
+  ctx.strokeStyle='rgba(80,160,220,0.15)';ctx.lineWidth=2;ctx.setLineDash([12,6]);
+  LANES.forEach(l=>{ctx.beginPath();l.wp.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();});
+  ctx.setLineDash([]);
+  // Ports
+  for(const [key,port] of Object.entries(PORTS)){
+    if(!vis(port.x,port.y,100)) continue;
+    const p=w2s(port.x,port.y);
+    ctx.fillStyle=port.f==='pirate'?'rgba(231,76,60,0.08)':port.f==='navy'?'rgba(52,152,219,0.08)':port.f==='island'?'rgba(180,150,60,0.1)':'rgba(150,150,150,0.06)';
+    ctx.beginPath();ctx.arc(p.x,p.y,DOCK_RANGE,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=port.f==='pirate'?'rgba(231,76,60,0.25)':port.f==='navy'?'rgba(52,152,219,0.25)':port.f==='island'?'rgba(180,150,60,0.3)':'rgba(150,150,150,0.15)';
+    ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=port.f==='pirate'?'#e74c3c':port.f==='navy'?'#3498db':port.f==='island'?'#d4a017':'#95a5a6';
+    ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#0a1628';ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#c0c8d0';ctx.font='600 11px Rajdhani';ctx.textAlign='center';
+    ctx.fillText(port.name,p.x,p.y+20);
+    if(port.bm){ctx.fillStyle='#e74c3c80';ctx.font='9px Rajdhani';ctx.fillText('BLACK MARKET',p.x,p.y+32);}
+    if(port.f==='island'){ctx.fillStyle='#d4a01780';ctx.font='9px Rajdhani';ctx.fillText('ISLAND',p.x,p.y+32);}
+    if(G.faction==='shipping'&&G.shipCo.contract&&G.shipCo.contract.to===key){
+      ctx.strokeStyle='#f39c12';ctx.lineWidth=2;
+      const pulse=Math.sin(G.time*3)*4+DOCK_RANGE+10;
+      ctx.beginPath();ctx.arc(p.x,p.y,pulse,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='#f39c12';ctx.font='bold 10px Rajdhani';
+      ctx.fillText('DELIVER HERE',p.x,p.y-DOCK_RANGE-8);
+    }
+  }
+  G.ships.forEach(s=>s.draw(ctx));
+  G.floats.forEach(f=>{
+    const s=w2s(f.x,f.y);const alpha=f.life/f.maxLife;
+    ctx.fillStyle=f.color;ctx.globalAlpha=alpha;
+    ctx.font='bold 14px Oswald';ctx.textAlign='center';
+    ctx.fillText(f.text,s.x,s.y-(1-alpha)*30);
+    ctx.globalAlpha=1;
+  });
+  // Interaction prompt
+  const prompt=document.getElementById('interact-prompt');
+  if(G.player&&G.player.state!=='boarding'){
+    let show=false;
+    for(const [key,port] of Object.entries(PORTS)){
+      if(dist(G.player,port)<DOCK_RANGE+15){
+        prompt.textContent='[E] DOCK AT '+port.name.toUpperCase();show=true;break;
+      }
+    }
+    if(!show&&G.faction==='pirate'){
+      for(const s of G.ships){
+        if(s!==G.player&&s.faction==='ship'&&s.alive&&s.state!=='looted'&&dist(G.player,s)<BOARD_RANGE+15){
+          prompt.textContent='[E] BOARD '+(s.npc?.name?.toUpperCase()||'VESSEL');show=true;break;
+        }
+      }
+    }
+    if(!show&&G.faction==='navy'){
+      for(const s of G.ships){
+        if(s!==G.player&&s.faction==='pirate'&&s.alive&&dist(G.player,s)<INTERCEPT_RANGE+15){
+          prompt.textContent='[E] INTERCEPT PIRATE';show=true;break;
+        }
+      }
+    }
+    prompt.style.display=show?'block':'none';
+  }
+  renderMinimap();
+}
+function drawLandWorld(ctx,land){
+  ctx.beginPath();land.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.closePath();ctx.fill();
+}
+function drawLandBorder(ctx,land){
+  ctx.beginPath();land.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.closePath();ctx.stroke();
+}
+function renderMinimap(){
+  mctx.fillStyle='#0a1628';mctx.fillRect(0,0,180,140);
+  const sx=180/WW,sy=140/WH;
+  mctx.fillStyle='#1c2d40';
+  drawMiniLand(mctx,LAND_SOMALIA,sx,sy);drawMiniLand(mctx,LAND_YEMEN,sx,sy);
+  mctx.fillStyle='#3d3520';
+  ISLAND_POLYS.forEach(poly=>drawMiniLand(mctx,poly,sx,sy));
+  mctx.strokeStyle='rgba(80,160,220,0.2)';mctx.lineWidth=1;
+  LANES.forEach(l=>{mctx.beginPath();l.wp.forEach((p,i)=>{i===0?mctx.moveTo(p[0]*sx,p[1]*sy):mctx.lineTo(p[0]*sx,p[1]*sy);});mctx.stroke();});
+  for(const [key,p] of Object.entries(PORTS)){
+    mctx.fillStyle=p.f==='pirate'?'#e74c3c':p.f==='navy'?'#3498db':p.f==='island'?'#d4a017':'#95a5a6';
+    mctx.beginPath();mctx.arc(p.x*sx,p.y*sy,2.5,0,Math.PI*2);mctx.fill();
+    if(G.faction==='shipping'&&G.shipCo.contract&&G.shipCo.contract.to===key){
+      mctx.strokeStyle='#f39c12';mctx.lineWidth=1;
+      mctx.beginPath();mctx.arc(p.x*sx,p.y*sy,4+Math.sin(G.time*4)*2,0,Math.PI*2);mctx.stroke();
+    }
+  }
+  for(const s of G.ships){
+    if(!s.alive) continue;
+    const mx=s.x*sx,my=s.y*sy;
+    if(mx<-5||mx>185||my<-5||my>145) continue;
+    mctx.fillStyle=s.faction==='navy'?'#3498db':s.faction==='pirate'?'#e74c3c':s.faction==='ship'?'#27ae60':'#888';
+    if(s.isPlayer){mctx.strokeStyle='#fff';mctx.lineWidth=1;mctx.beginPath();mctx.arc(mx,my,3.5,0,Math.PI*2);mctx.fill();mctx.stroke();}
+    else{mctx.beginPath();mctx.arc(mx,my,1.5,0,Math.PI*2);mctx.fill();}
+  }
+  const vx=G.cam.x*sx,vy=G.cam.y*sy,vw=canvas.width*sx,vh=canvas.height*sy;
+  mctx.strokeStyle='rgba(255,255,255,0.35)';mctx.lineWidth=1;mctx.strokeRect(vx,vy,vw,vh);
+}
+function drawMiniLand(ctx,land,sx,sy){
+  ctx.beginPath();land.forEach((p,i)=>{i===0?ctx.moveTo(p[0]*sx,p[1]*sy):ctx.lineTo(p[0]*sx,p[1]*sy);});ctx.closePath();ctx.fill();
+}
+
+// ======================== GAME LOOP ========================
+function gameLoop(ts){
+  if(G.gameOver) return;
+  animId=requestAnimationFrame(gameLoop);
+  if(G.state!=='playing'||G.paused) return;
+
+  G.dt=Math.min(0.1,(ts-lastTime)/1000);
+  lastTime=ts;G.time+=G.dt;
+
+  updateMarkets(G.dt);
+
+  for(const [t,tm] of Object.entries(G.spawnT)){
+    G.spawnT[t]-=G.dt;
+    if(G.spawnT[t]<=0){
+      if(t==='merchant'&&Math.random()<0.7) spawnNPC('ai_merchant');
+      if(t==='pirate'&&Math.random()<0.5) spawnNPC('ai_pirate',pick(Object.values(PORTS).filter(p=>p.f==='pirate')));
+      if(t==='navy'&&Math.random()<0.5) spawnNPC('ai_navy');
+      if(t==='fishing'&&Math.random()<0.7) spawnNPC('fishing');
+      G.spawnT[t]=t==='merchant'?4:t==='pirate'?6:t==='navy'?10:8;
+    }
+  }
+
+  G.ships=G.ships.filter(s=>s.alive||s.isPlayer);
+  applySlowdowns();
+  updateAIDecisions(G.dt);
+  G.ships.forEach(s=>s.update(G.dt));
+
+  if(G.player&&G.player.alive&&G.player.state!=='boarding'){
+    for(const s of G.ships){
+      if(s===G.player||!s.alive) continue;
+      const hostile=(G.faction==='navy'&&s.faction==='pirate')||(G.faction==='pirate'&&s.faction==='navy')||
+                     (G.faction==='shipping'&&s.faction==='pirate')||(G.faction==='pirate'&&s.faction==='ship');
+      if(hostile&&dist(G.player,s)<G.player.sz+s.sz+8){
+        G.player.damage(8*G.dt);updateHUD();
+        if(G.gameOver) return;
+      }
+    }
+  }
+
+  G.floats.forEach(f=>f.life-=G.dt);
+  G.floats=G.floats.filter(f=>f.life>0);
+
+  if(G.player){
+    G.cam.x=lerp(G.cam.x,G.player.x-canvas.width/2,0.08);
+    G.cam.y=lerp(G.cam.y,G.player.y-canvas.height/2,0.08);
+    G.cam.x=clamp(G.cam.x,0,WW-canvas.width);
+    G.cam.y=clamp(G.cam.y,0,WH-canvas.height);
+  }
+
+  render();updateHUD();renderMsgs();
+}
+
+// ======================== START GAME ========================
+function startGame(faction){
+  G.state='playing';G.faction=faction;
+  document.getElementById('menu-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+
+  const startPorts={navy:'djibouti',shipping:'aden',pirate:'bosaso'};
+  const startTypes={navy:'patrol',shipping:'coastal',pirate:'skiff'};
+  const sp=PORTS[startPorts[faction]];
+  G.player=new Ship(sp.x+rand(-20,20),sp.y+rand(-20,20),startTypes[faction],true);
+  G.ships.push(G.player);
+
+  document.getElementById('faction-name').textContent=faction==='navy'?'EU NAVFORCE':faction==='shipping'?'MARITIME CARGO':'PIRATE CREW';
+  document.getElementById('faction-dot').className='faction-dot '+(faction==='navy'?'navy':faction==='shipping'?'ship':'pirate');
+
+  spawnInitialNPCs();
+  lastTime=performance.now();
+  aiDecisionTimer=0;
+  updateHUD();
+
+  addMsg('Deployed as '+(faction==='navy'?'EU Naval Force':faction==='shipping'?'Maritime Cargo':'Pirate Crew'),'info');
+  if(faction==='pirate'){
+    addMsg('Target GREEN ships (E to board). Avoid BLUE navy ships.','info');
+    addMsg('Sell loot at black market ports. Visit islands for rum!','info');
+  }
+  if(faction==='shipping'){
+    addMsg('Avoid RED pirates. Dock at ports for cargo contracts.','info');
+    addMsg('Deliver cargo for profit!','info');
+  }
+  if(faction==='navy'){
+    addMsg('Target RED pirates (E to intercept). Refuel at Djibouti.','info');
+    addMsg('Patrol shipping lanes to protect merchants.','info');
+  }
+
+  // Start the game loop only when game starts
+  gameLoop(lastTime);
+}
+
+// ======================== INIT ========================
+function init(){
+  canvas=document.getElementById('game-canvas');
+  ctx=canvas.getContext('2d');
+  mcanvas=document.getElementById('minimap');
+  mctx=mcanvas.getContext('2d');
+
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  window.addEventListener('resize',resize);resize();
+
+  // Menu background animation
+  const mc=document.getElementById('menu-bg');
+  const mc2=mc.getContext('2d');
+  function resizeMenu(){mc.width=window.innerWidth;mc.height=window.innerHeight;}
+  window.addEventListener('resize',resizeMenu);resizeMenu();
+  let mt=0;
+  function animMenu(){
+    mt+=0.01;
+    mc2.fillStyle='#060e1a';mc2.fillRect(0,0,mc.width,mc.height);
+    mc2.strokeStyle='rgba(52,152,219,0.12)';mc2.lineWidth=2;
+    for(let i=0;i<6;i++){
+      mc2.beginPath();
+      for(let x=0;x<mc.width;x+=12){
+        const y=mc.height*0.55+Math.sin(x*0.008+mt+i*0.8)*25+i*18;
+        x===0?mc2.moveTo(x,y):mc2.lineTo(x,y);
+      }
+      mc2.stroke();
+    }
+    mc2.fillStyle='#1c2d40';
+    mc2.beginPath();LAND_YEMEN.forEach((p,i)=>{const sx=p[0]/WW*mc.width,sy=p[1]/WH*mc.height;i===0?mc2.moveTo(sx,sy):mc2.lineTo(sx,sy);});mc2.closePath();mc2.fill();
+    mc2.beginPath();LAND_SOMALIA.forEach((p,i)=>{const sx=p[0]/WW*mc.width,sy=p[1]/WH*mc.height;i===0?mc2.moveTo(sx,sy):mc2.lineTo(sx,sy);});mc2.closePath();mc2.fill();
+    mc2.fillStyle='#3d3520';
+    ISLAND_POLYS.forEach(poly=>{mc2.beginPath();poly.forEach((p,i)=>{const sx=p[0]/WW*mc.width,sy=p[1]/WH*mc.height;i===0?mc2.moveTo(sx,sy):mc2.lineTo(sx,sy);});mc2.closePath();mc2.fill();});
+    for(const p of Object.values(PORTS)){
+      mc2.fillStyle=p.f==='pirate'?'#e74c3c':p.f==='navy'?'#3498db':p.f==='island'?'#d4a017':'#95a5a6';
+      mc2.beginPath();mc2.arc(p.x/WW*mc.width,p.y/WH*mc.height,4,0,Math.PI*2);mc2.fill();
+    }
+    requestAnimationFrame(animMenu);
+  }
+  animMenu();
+
+  // Input
+  window.addEventListener('keydown',e=>{
+    keys[e.key.toLowerCase()]=true;
+    if(e.key==='Escape'){
+      if(G.shopOpen){closeShop();return;}
+      if(G.state==='playing'){G.paused=!G.paused;document.getElementById('pause-overlay').style.display=G.paused?'flex':'none';}
+    }
+    if(e.key.toLowerCase()==='e'&&G.state==='playing'&&!G.shopOpen&&!G.paused) checkInteraction();
+  });
+  window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+  // Menu faction selection
+  document.querySelectorAll('.faction-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      document.querySelectorAll('.faction-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');selectedFaction=card.dataset.faction;
+      const btn=document.getElementById('deploy-btn');btn.classList.add('ready');btn.textContent='DEPLOY';
+    });
+  });
+  document.getElementById('deploy-btn').addEventListener('click',()=>{if(selectedFaction) startGame(selectedFaction);});
+
+  document.getElementById('shop-close').addEventListener('click',closeShop);
+  document.getElementById('restart-btn').addEventListener('click',()=>{
+    document.getElementById('gameover-screen').style.display='none';
+    document.getElementById('menu-screen').style.display='flex';
+    document.getElementById('game-screen').style.display='none';
+    document.getElementById('contract-hud').style.display='none';
+    document.getElementById('slow-indicator').style.display='none';
+    document.getElementById('pause-overlay').style.display='none';
+    document.getElementById('drunk-overlay').style.display='none';
+    document.getElementById('drunk-hud').style.display='none';
+    G=freshState();selectedFaction=null;
+    document.querySelectorAll('.faction-card').forEach(c=>c.classList.remove('selected'));
+    const btn=document.getElementById('deploy-btn');btn.classList.remove('ready');btn.textContent='SELECT A FACTION';
+    // Do NOT restart gameLoop here — it will start when player deploys
+  });
+}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
