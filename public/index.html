@@ -1,845 +1,2634 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Somali Waters — Multiplayer Pirate Tycoon</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#060e1a;overflow:hidden;font-family:'Rajdhani',sans-serif;color:#ecf0f1;user-select:none}
-canvas{display:block}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Somali Waters — Multiplayer Pirate Tycoon</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ui-scale: 1;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #060e1a;
+        overflow: hidden;
+        font-family: "Rajdhani", sans-serif;
+        color: #ecf0f1;
+        user-select: none;
+      }
+      canvas {
+        display: block;
+      }
 
-#menu-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:#060e1a}
-#menu-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
-.menu-content{position:relative;z-index:1;text-align:center;padding:20px;max-width:1200px}
-.menu-title{font-family:'Oswald',sans-serif;font-size:clamp(32px,6vw,64px);font-weight:700;letter-spacing:4px;color:#ecf0f1;text-shadow:0 0 40px rgba(231,76,60,0.3);margin-bottom:4px}
-.menu-sub{font-size:clamp(10px,1.5vw,14px);color:#7f8c8d;letter-spacing:6px;text-transform:uppercase;margin-bottom:12px}
-.menu-online{font-size:12px;color:#27ae60;letter-spacing:2px;margin-bottom:18px}
+      #menu-screen {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        background: #060e1a;
+      }
+      #menu-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .menu-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 20px;
+        max-width: 1200px;
+      }
+      .menu-title {
+        font-family: "Oswald", sans-serif;
+        font-size: clamp(32px, 6vw, 64px);
+        font-weight: 700;
+        letter-spacing: 4px;
+        color: #ecf0f1;
+        text-shadow: 0 0 40px rgba(231, 76, 60, 0.3);
+        margin-bottom: 4px;
+      }
+      .menu-sub {
+        font-size: clamp(10px, 1.5vw, 14px);
+        color: #7f8c8d;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      .menu-online {
+        font-size: 12px;
+        color: #27ae60;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
 
-#name-input{font-family:'Rajdhani',sans-serif;font-size:16px;padding:8px 16px;background:rgba(12,20,35,0.95);border:2px solid rgba(255,255,255,0.12);color:#ecf0f1;text-align:center;letter-spacing:2px;border-radius:3px;width:240px;margin-bottom:16px;outline:none;transition:border-color 0.2s}
-#name-input:focus{border-color:rgba(255,255,255,0.3)}
-#name-input::placeholder{color:#555}
+      #name-input {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 16px;
+        padding: 8px 16px;
+        background: rgba(12, 20, 35, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        color: #ecf0f1;
+        text-align: center;
+        letter-spacing: 2px;
+        border-radius: 3px;
+        width: 240px;
+        margin-bottom: 16px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      #name-input:focus {
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      #name-input::placeholder {
+        color: #555;
+      }
 
-.faction-cards{display:flex;gap:14px;margin:12px 0 16px;flex-wrap:wrap;justify-content:center}
-.faction-card{width:220px;padding:16px 14px;background:rgba(12,20,35,0.95);border:2px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.25s;text-align:left;overflow:hidden;border-radius:4px}
-.faction-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
-.faction-card.selected{border-color:var(--fc);box-shadow:0 0 25px color-mix(in srgb,var(--fc) 30%,transparent)}
-.faction-card .fc-icon{font-size:22px;margin-bottom:8px;color:var(--fc)}
-.faction-card h3{font-family:'Oswald',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:4px;color:var(--fc)}
-.faction-card p{font-size:11px;color:#95a5a6;line-height:1.4;margin-bottom:6px}
-.faction-card ul{list-style:none;font-size:10px;color:#7f8c8d;line-height:1.5}
-.faction-card ul li::before{content:'▸ ';color:var(--fc);margin-right:2px}
-.fc-navy{--fc:#3498db}.fc-shipping{--fc:#27ae60}.fc-pirate{--fc:#e74c3c}
+      .faction-cards {
+        display: flex;
+        gap: 14px;
+        margin: 12px 0 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .faction-card {
+        width: 220px;
+        padding: 16px 14px;
+        background: rgba(12, 20, 35, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        transition: all 0.25s;
+        text-align: left;
+        overflow: hidden;
+        border-radius: 4px;
+      }
+      .faction-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      .faction-card.selected {
+        border-color: var(--fc);
+        box-shadow: 0 0 25px color-mix(in srgb, var(--fc) 30%, transparent);
+      }
+      .faction-card .fc-icon {
+        font-size: 22px;
+        margin-bottom: 8px;
+        color: var(--fc);
+      }
+      .faction-card h3 {
+        font-family: "Oswald", sans-serif;
+        font-size: 18px;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
+        color: var(--fc);
+      }
+      .faction-card p {
+        font-size: 11px;
+        color: #95a5a6;
+        line-height: 1.4;
+        margin-bottom: 6px;
+      }
+      .faction-card ul {
+        list-style: none;
+        font-size: 10px;
+        color: #7f8c8d;
+        line-height: 1.5;
+      }
+      .faction-card ul li::before {
+        content: "▸ ";
+        color: var(--fc);
+        margin-right: 2px;
+      }
+      .fc-navy {
+        --fc: #3498db;
+      }
+      .fc-shipping {
+        --fc: #27ae60;
+      }
+      .fc-pirate {
+        --fc: #e74c3c;
+      }
 
-#deploy-btn{font-family:'Oswald',sans-serif;font-size:16px;letter-spacing:3px;padding:10px 48px;background:transparent;border:2px solid rgba(255,255,255,0.12);color:#555;cursor:default;transition:all 0.25s;text-transform:uppercase;border-radius:3px;margin-top:8px}
-#deploy-btn.ready{border-color:#e74c3c;color:#e74c3c;cursor:pointer;box-shadow:0 0 18px rgba(231,76,60,0.2)}
-#deploy-btn.ready:hover{background:#e74c3c;color:#fff}
+      #deploy-btn {
+        font-family: "Oswald", sans-serif;
+        font-size: 16px;
+        letter-spacing: 3px;
+        padding: 10px 48px;
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        color: #555;
+        cursor: default;
+        transition: all 0.25s;
+        text-transform: uppercase;
+        border-radius: 3px;
+        margin-top: 8px;
+      }
+      #deploy-btn.ready {
+        border-color: #e74c3c;
+        color: #e74c3c;
+        cursor: pointer;
+        box-shadow: 0 0 18px rgba(231, 76, 60, 0.2);
+      }
+      #deploy-btn.ready:hover {
+        background: #e74c3c;
+        color: #fff;
+      }
 
-#game-screen{position:fixed;inset:0;display:none}
-#game-canvas{position:absolute;inset:0;cursor:crosshair}
-#hud{position:absolute;inset:0;pointer-events:none}
-#hud>*{pointer-events:auto}
-.hud-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.hud-panel{background:rgba(8,15,25,0.92);border:1px solid rgba(255,255,255,0.08);padding:8px 12px;backdrop-filter:blur(4px);border-radius:3px;min-width:170px}
-.hud-label{font-size:8px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-top:2px}
-.hud-value{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600}
-.bar-wrap{width:120px;height:6px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:2px;overflow:hidden}
-.bar-fill{height:100%;border-radius:1px;transition:width 0.15s}
-.bar-fuel{background:linear-gradient(90deg,#e74c3c,#f39c12)}
-.bar-hp{background:linear-gradient(90deg,#c0392b,#27ae60)}
-.bar-loot{background:linear-gradient(90deg,#e67e22,#f1c40f)}
+      .cosmetic-section {
+        margin: 10px 0 4px;
+        text-align: center;
+      }
+      .cosmetic-label {
+        font-size: 9px;
+        letter-spacing: 2px;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .cosmetic-colors {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .color-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+      }
+      .color-swatch:hover {
+        transform: scale(1.15);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .color-swatch.selected {
+        border-color: #fff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        transform: scale(1.15);
+      }
 
-#minimap-wrap{position:absolute;bottom:8px;right:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(8,15,25,0.9);border-radius:2px;overflow:hidden}
-#minimap{display:block}
+      #game-screen {
+        position: fixed;
+        inset: 0;
+        display: none;
+      }
+      #game-canvas {
+        position: absolute;
+        inset: 0;
+        cursor: crosshair;
+      }
+      #hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        zoom: var(--ui-scale);
+      }
+      #hud > * {
+        pointer-events: auto;
+      }
+      .hud-top {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .hud-panel {
+        background: rgba(8, 15, 25, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 8px 12px;
+        backdrop-filter: blur(4px);
+        border-radius: 3px;
+        min-width: 170px;
+      }
+      .hud-label {
+        font-size: 8px;
+        letter-spacing: 1.5px;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      .hud-value {
+        font-family: "Oswald", sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .bar-wrap {
+        width: 120px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 1px;
+        margin-top: 2px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 1px;
+        transition: width 0.15s;
+      }
+      .bar-fuel {
+        background: linear-gradient(90deg, #e74c3c, #f39c12);
+      }
+      .bar-hp {
+        background: linear-gradient(90deg, #c0392b, #27ae60);
+      }
+      .bar-loot {
+        background: linear-gradient(90deg, #e67e22, #f1c40f);
+      }
 
-#msg-log{position:absolute;bottom:8px;left:8px;max-width:340px;display:flex;flex-direction:column;gap:2px}
-.msg{font-size:10px;padding:2px 8px;background:rgba(8,15,25,0.9);border-left:2px solid #555;animation:msgIn 0.25s ease-out;white-space:nowrap;border-radius:0 2px 2px 0}
-.msg.alert{border-color:#e74c3c;color:#e74c3c}.msg.success{border-color:#27ae60;color:#27ae60}.msg.info{border-color:#3498db;color:#3498db}.msg.warn{border-color:#f39c12;color:#f39c12}
-@keyframes msgIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+      #minimap-wrap {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(8, 15, 25, 0.9);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      #minimap {
+        display: block;
+      }
 
-#interact-prompt{position:absolute;top:55%;left:50%;transform:translateX(-50%);font-size:13px;padding:6px 14px;background:rgba(8,15,25,0.95);border:1px solid rgba(255,255,255,0.15);display:none;letter-spacing:0.5px;border-radius:3px;box-shadow:0 2px 10px rgba(0,0,0,0.3);z-index:60;pointer-events:none;white-space:nowrap}
+      #msg-log {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        max-width: 340px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .msg {
+        font-size: 10px;
+        padding: 2px 8px;
+        background: rgba(8, 15, 25, 0.9);
+        border-left: 2px solid #555;
+        animation: msgIn 0.25s ease-out;
+        white-space: nowrap;
+        border-radius: 0 2px 2px 0;
+      }
+      .msg.alert {
+        border-color: #e74c3c;
+        color: #e74c3c;
+      }
+      .msg.success {
+        border-color: #27ae60;
+        color: #27ae60;
+      }
+      .msg.info {
+        border-color: #3498db;
+        color: #3498db;
+      }
+      .msg.warn {
+        border-color: #f39c12;
+        color: #f39c12;
+      }
+      @keyframes msgIn {
+        from {
+          opacity: 0;
+          transform: translateX(-12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
 
-#shop-panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;max-height:85vh;overflow-y:auto;background:rgba(8,15,25,0.97);border:1px solid rgba(255,255,255,0.15);padding:18px;display:none;backdrop-filter:blur(8px);border-radius:4px;box-shadow:0 4px 30px rgba(0,0,0,0.5);z-index:200}
-#shop-panel h3{font-family:'Oswald',sans-serif;font-size:17px;letter-spacing:2.5px;margin-bottom:2px}
-.shop-sub{font-size:10px;color:#666;margin-bottom:12px;line-height:1.4}
-.market-badge{font-size:9px;padding:2px 7px;border-radius:2px;font-weight:600;letter-spacing:0.5px;display:inline-block;margin:3px 0 8px}
-.market-open{background:rgba(39,174,96,0.2);color:#27ae60;border:1px solid #27ae60}
-.market-risk{background:rgba(243,156,18,0.2);color:#f39c12;border:1px solid #f39c12}
-.market-lock{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid #e74c3c}
-.shop-item{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;transition:background 0.15s;border-radius:2px}
-.shop-item:hover{background:rgba(255,255,255,0.04)}
-.si-info{flex:1}.si-name{font-size:12px;font-weight:600}.si-desc{font-size:9px;color:#666;margin-top:1px}
-.si-btn{padding:3px 10px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;border:1px solid;cursor:pointer;transition:all 0.15s;background:transparent;letter-spacing:0.5px;white-space:nowrap;border-radius:2px}
-.si-btn.can-buy{border-color:#27ae60;color:#27ae60}.si-btn.can-buy:hover{background:rgba(39,174,96,0.15)}
-.si-btn.cant-buy{border-color:#555;color:#555;opacity:0.4;cursor:not-allowed}
-.si-btn.deliver-btn{border-color:#f39c12;color:#f39c12}.si-btn.deliver-btn:hover{background:rgba(243,156,18,0.15)}
-#shop-close{position:absolute;top:8px;right:12px;font-size:20px;cursor:pointer;color:#666;background:none;border:none;line-height:1;padding:2px;z-index:201}
-#shop-close:hover{color:#ecf0f1}
-.shop-section-title{font-size:9px;letter-spacing:1.8px;color:#555;text-transform:uppercase;padding:6px 0 3px;border-top:1px solid rgba(255,255,255,0.06);margin:8px 0 4px}
+      #interact-prompt {
+        position: absolute;
+        top: 55%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 13px;
+        padding: 6px 14px;
+        background: rgba(8, 15, 25, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        display: none;
+        letter-spacing: 0.5px;
+        border-radius: 3px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        z-index: 60;
+        pointer-events: none;
+        white-space: nowrap;
+      }
 
-#contract-hud{position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(8,15,25,0.92);border:1px solid rgba(39,174,96,0.3);padding:8px 12px;border-radius:3px;display:none;min-width:140px;pointer-events:none}
-#contract-hud .ch-label{font-size:8px;letter-spacing:1.5px;color:#27ae60;text-transform:uppercase}
-#contract-hud .ch-cargo{font-family:'Oswald',sans-serif;font-size:14px;margin:2px 0}
-#contract-hud .ch-dest{font-size:11px;color:#95a5a6}
-#contract-hud .ch-reward{font-size:12px;color:#f39c12;font-weight:600;margin-top:2px}
-#contract-hud .ch-dist{font-size:10px;color:#666}
+      #shop-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 420px;
+        max-height: 85vh;
+        overflow-y: auto;
+        background: rgba(8, 15, 25, 0.97);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 18px;
+        display: none;
+        backdrop-filter: blur(8px);
+        border-radius: 4px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        z-index: 200;
+      }
+      #shop-panel h3 {
+        font-family: "Oswald", sans-serif;
+        font-size: 17px;
+        letter-spacing: 2.5px;
+        margin-bottom: 2px;
+      }
+      .shop-sub {
+        font-size: 10px;
+        color: #666;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      .market-badge {
+        font-size: 9px;
+        padding: 2px 7px;
+        border-radius: 2px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        margin: 3px 0 8px;
+      }
+      .market-open {
+        background: rgba(39, 174, 96, 0.2);
+        color: #27ae60;
+        border: 1px solid #27ae60;
+      }
+      .market-risk {
+        background: rgba(243, 156, 18, 0.2);
+        color: #f39c12;
+        border: 1px solid #f39c12;
+      }
+      .market-lock {
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+      }
+      .shop-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 7px 9px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 4px;
+        transition: background 0.15s;
+        border-radius: 2px;
+      }
+      .shop-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .si-info {
+        flex: 1;
+      }
+      .si-name {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .si-desc {
+        font-size: 9px;
+        color: #666;
+        margin-top: 1px;
+      }
+      .si-btn {
+        padding: 3px 10px;
+        font-family: "Rajdhani", sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        border-radius: 2px;
+      }
+      .si-btn.can-buy {
+        border-color: #27ae60;
+        color: #27ae60;
+      }
+      .si-btn.can-buy:hover {
+        background: rgba(39, 174, 96, 0.15);
+      }
+      .si-btn.cant-buy {
+        border-color: #555;
+        color: #555;
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .si-btn.deliver-btn {
+        border-color: #f39c12;
+        color: #f39c12;
+      }
+      .si-btn.deliver-btn:hover {
+        background: rgba(243, 156, 18, 0.15);
+      }
+      #shop-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #666;
+        background: none;
+        border: none;
+        line-height: 1;
+        padding: 2px;
+        z-index: 201;
+      }
+      #shop-close:hover {
+        color: #ecf0f1;
+      }
+      .shop-section-title {
+        font-size: 9px;
+        letter-spacing: 1.8px;
+        color: #555;
+        text-transform: uppercase;
+        padding: 6px 0 3px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        margin: 8px 0 4px;
+      }
 
-#slow-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,60px);font-size:14px;font-weight:700;color:#e74c3c;letter-spacing:2px;display:none;pointer-events:none;text-shadow:0 0 10px rgba(231,76,60,0.5);animation:slowPulse 0.8s ease-in-out infinite}
-@keyframes slowPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+      #contract-hud {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        background: rgba(8, 15, 25, 0.92);
+        border: 1px solid rgba(39, 174, 96, 0.3);
+        padding: 8px 12px;
+        border-radius: 3px;
+        display: none;
+        min-width: 140px;
+        pointer-events: none;
+      }
+      #contract-hud .ch-label {
+        font-size: 8px;
+        letter-spacing: 1.5px;
+        color: #27ae60;
+        text-transform: uppercase;
+      }
+      #contract-hud .ch-cargo {
+        font-family: "Oswald", sans-serif;
+        font-size: 14px;
+        margin: 2px 0;
+      }
+      #contract-hud .ch-dest {
+        font-size: 11px;
+        color: #95a5a6;
+      }
+      #contract-hud .ch-reward {
+        font-size: 12px;
+        color: #f39c12;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      #contract-hud .ch-dist {
+        font-size: 10px;
+        color: #666;
+      }
 
-#stun-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,85px);font-size:14px;font-weight:700;color:#f39c12;letter-spacing:2px;display:none;pointer-events:none;text-shadow:0 0 10px rgba(243,156,18,0.5);animation:slowPulse 0.6s ease-in-out infinite}
+      #slow-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 60px);
+        font-size: 14px;
+        font-weight: 700;
+        color: #e74c3c;
+        letter-spacing: 2px;
+        display: none;
+        pointer-events: none;
+        text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        animation: slowPulse 0.8s ease-in-out infinite;
+      }
+      @keyframes slowPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
 
-#drunk-overlay{position:absolute;inset:0;pointer-events:none;z-index:44;display:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(180,120,30,0.2) 100%);border:3px solid rgba(200,150,50,0.25);animation:drunkWobble 2s ease-in-out infinite}
-@keyframes drunkWobble{0%,100%{border-color:rgba(200,150,50,0.25)}50%{border-color:rgba(200,150,50,0.08)}}
-#drunk-hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#d4a017;letter-spacing:3px;display:none;pointer-events:none;text-shadow:0 0 12px rgba(212,160,23,0.5);animation:drunkText 1.5s ease-in-out infinite}
-@keyframes drunkText{0%,100%{transform:translateX(-50%) rotate(0deg)}25%{transform:translateX(-50%) rotate(-2deg)}75%{transform:translateX(-50%) rotate(2deg)}}
+      #stun-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 85px);
+        font-size: 14px;
+        font-weight: 700;
+        color: #f39c12;
+        letter-spacing: 2px;
+        display: none;
+        pointer-events: none;
+        text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        animation: slowPulse 0.6s ease-in-out infinite;
+      }
 
-#gameover-screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:300;background:rgba(6,14,26,0.97)}
-.go-title{font-family:'Oswald',sans-serif;font-size:36px;letter-spacing:3px;margin-bottom:4px}
-.go-sub{font-size:13px;color:#666;margin-bottom:24px;max-width:380px;text-align:center;line-height:1.4}
-.go-stats{text-align:left;margin-bottom:24px;min-width:240px;background:rgba(12,20,35,0.8);padding:12px 16px;border-radius:4px;border:1px solid rgba(255,255,255,0.06)}
-.go-stats div{padding:4px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between}
-.go-stats span{font-weight:600}
-#restart-btn{font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2.5px;padding:9px 40px;background:transparent;border:2px solid #e74c3c;color:#e74c3c;cursor:pointer;transition:all 0.25s;border-radius:3px}
-#restart-btn:hover{background:#e74c3c;color:#fff}
+      #drunk-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 44;
+        display: none;
+        background: radial-gradient(
+          ellipse at center,
+          transparent 40%,
+          rgba(180, 120, 30, 0.2) 100%
+        );
+        border: 3px solid rgba(200, 150, 50, 0.25);
+        animation: drunkWobble 2s ease-in-out infinite;
+      }
+      @keyframes drunkWobble {
+        0%,
+        100% {
+          border-color: rgba(200, 150, 50, 0.25);
+        }
+        50% {
+          border-color: rgba(200, 150, 50, 0.08);
+        }
+      }
+      #drunk-hud {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Oswald", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #d4a017;
+        letter-spacing: 3px;
+        display: none;
+        pointer-events: none;
+        text-shadow: 0 0 12px rgba(212, 160, 23, 0.5);
+        animation: drunkText 1.5s ease-in-out infinite;
+      }
+      @keyframes drunkText {
+        0%,
+        100% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+        25% {
+          transform: translateX(-50%) rotate(-2deg);
+        }
+        75% {
+          transform: translateX(-50%) rotate(2deg);
+        }
+      }
 
-.controls-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(100,110,120,0.7);letter-spacing:0.8px;text-align:center;max-width:90%;z-index:50;pointer-events:none;white-space:nowrap}
+      #gameover-screen {
+        position: fixed;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        background: rgba(6, 14, 26, 0.97);
+      }
+      .go-title {
+        font-family: "Oswald", sans-serif;
+        font-size: 36px;
+        letter-spacing: 3px;
+        margin-bottom: 4px;
+      }
+      .go-sub {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 24px;
+        max-width: 380px;
+        text-align: center;
+        line-height: 1.4;
+      }
+      .go-stats {
+        text-align: left;
+        margin-bottom: 24px;
+        min-width: 240px;
+        background: rgba(12, 20, 35, 0.8);
+        padding: 12px 16px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .go-stats div {
+        padding: 4px 0;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        display: flex;
+        justify-content: space-between;
+      }
+      .go-stats span {
+        font-weight: 600;
+      }
+      #restart-btn {
+        font-family: "Oswald", sans-serif;
+        font-size: 15px;
+        letter-spacing: 2.5px;
+        padding: 9px 40px;
+        background: transparent;
+        border: 2px solid #e74c3c;
+        color: #e74c3c;
+        cursor: pointer;
+        transition: all 0.25s;
+        border-radius: 3px;
+      }
+      #restart-btn:hover {
+        background: #e74c3c;
+        color: #fff;
+      }
 
-.faction-hud{display:flex;align-items:center;gap:6px;font-size:11px}
-.faction-dot{width:8px;height:8px;border-radius:50%}
-.faction-dot.navy{background:#3498db}.faction-dot.ship{background:#27ae60}.faction-dot.pirate{background:#e74c3c}
-.risk-indicator{font-size:9px;font-weight:600}
+      .controls-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9px;
+        color: rgba(100, 110, 120, 0.7);
+        letter-spacing: 0.8px;
+        text-align: center;
+        max-width: 90%;
+        z-index: 50;
+        pointer-events: none;
+        white-space: nowrap;
+      }
 
-#leaderboard{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(8,15,25,0.88);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:3px;min-width:180px;pointer-events:none}
-#leaderboard h4{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:2px;color:#666;text-transform:uppercase;text-align:center;margin-bottom:4px}
-.lb-row{display:flex;justify-content:space-between;font-size:10px;padding:1px 0;gap:12px}
-.lb-name{color:#aaa;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-score{font-weight:600;white-space:nowrap}
+      .faction-hud {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+      }
+      .faction-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .faction-dot.navy {
+        background: #3498db;
+      }
+      .faction-dot.ship {
+        background: #27ae60;
+      }
+      .faction-dot.pirate {
+        background: #e74c3c;
+      }
+      .risk-indicator {
+        font-size: 9px;
+        font-weight: 600;
+      }
 
-#weapon-hud{position:absolute;bottom:46px;left:50%;transform:translateX(-50%);background:rgba(8,15,25,0.88);border:1px solid rgba(255,255,255,0.08);padding:4px 12px;border-radius:3px;display:none;pointer-events:none;font-size:10px;letter-spacing:1px;color:#888}
-.weapon-ready{color:#27ae60!important}.weapon-cooldown{color:#e74c3c!important}
+      #leaderboard {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(8, 15, 25, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 6px 14px;
+        border-radius: 3px;
+        min-width: 180px;
+        pointer-events: none;
+      }
+      #leaderboard h4 {
+        font-family: "Oswald", sans-serif;
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: #666;
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+      .lb-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        padding: 1px 0;
+        gap: 12px;
+      }
+      .lb-name {
+        color: #aaa;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .lb-score {
+        font-weight: 600;
+        white-space: nowrap;
+      }
 
-#players-count{position:absolute;top:8px;right:200px;background:rgba(8,15,25,0.88);border:1px solid rgba(255,255,255,0.08);padding:4px 10px;border-radius:3px;font-size:10px;color:#888;letter-spacing:1px;pointer-events:none}
-</style>
-</head>
-<body>
+      #safe-zone-hud {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 35px);
+        font-size: 12px;
+        font-weight: 700;
+        color: #27ae60;
+        letter-spacing: 2px;
+        display: none;
+        pointer-events: none;
+        text-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+      }
+      #weapon-hud {
+        position: absolute;
+        bottom: 46px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(8, 15, 25, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 4px 12px;
+        border-radius: 3px;
+        display: none;
+        pointer-events: none;
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: #888;
+      }
+      .weapon-ready {
+        color: #27ae60 !important;
+      }
+      .weapon-cooldown {
+        color: #e74c3c !important;
+      }
 
-<div id="menu-screen">
-  <canvas id="menu-bg"></canvas>
-  <div class="menu-content">
-    <div class="menu-title">SOMALI WATERS</div>
-    <div class="menu-sub">Multiplayer Pirate Tycoon &bull; .IO</div>
-    <div class="menu-online" id="menu-online">CONNECTING...</div>
-    <input id="name-input" type="text" placeholder="ENTER YOUR NAME" maxlength="16" autocomplete="off" spellcheck="false">
-    <div class="faction-cards">
-      <div class="faction-card fc-navy" data-faction="navy">
-        <div class="fc-icon"><i class="fas fa-shield-halved"></i></div>
-        <h3>EU NAVFORCE</h3>
-        <p>Patrol the Gulf of Aden. Hunt pirates. Protect shipping lanes.</p>
-        <ul><li>Intercept pirate vessels</li><li>Shoot pirates on sight</li><li>Refuel at naval bases</li><li>Upgrade weapons &amp; hull with score</li></ul>
-      </div>
-      <div class="faction-card fc-shipping" data-faction="shipping">
-        <div class="fc-icon"><i class="fas fa-ship"></i></div>
-        <h3>MARITIME CARGO</h3>
-        <p>Run cargo through dangerous waters. Buy weapons. Grow your fleet.</p>
-        <ul><li>Pick up contracts at ports</li><li>Purchase weapons to fight back</li><li>Upgrade to larger ships</li><li>Deliver cargo for big payouts</li></ul>
-      </div>
-      <div class="faction-card fc-pirate" data-faction="pirate">
-        <div class="fc-icon"><i class="fas fa-skull-crossbones"></i></div>
-        <h3>PIRATE CREW</h3>
-        <p>Board ships. Sell loot. Upgrade your fleet. Dominate the waters.</p>
-        <ul><li>Shoot and board merchant ships</li><li>Sell at 3 black markets</li><li>Upgrade weapons, hold &amp; ship size</li><li>Buy rum at islands</li></ul>
+      #players-count {
+        position: absolute;
+        top: 8px;
+        right: 200px;
+        background: rgba(8, 15, 25, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 4px 10px;
+        border-radius: 3px;
+        font-size: 10px;
+        color: #888;
+        letter-spacing: 1px;
+        pointer-events: none;
+      }
+
+      #settings-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 32px;
+        height: 32px;
+        background: rgba(8, 15, 25, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        font-size: 16px;
+        transition: all 0.15s;
+        z-index: 60;
+      }
+      #settings-btn:hover {
+        color: #ecf0f1;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      #settings-panel {
+        position: fixed;
+        top: 50%;
+        right: 16px;
+        transform: translateY(-50%);
+        width: 280px;
+        background: rgba(8, 15, 25, 0.97);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 16px;
+        display: none;
+        backdrop-filter: blur(8px);
+        border-radius: 4px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        z-index: 250;
+      }
+      #settings-panel h3 {
+        font-family: "Oswald", sans-serif;
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        color: #aaa;
+      }
+      .settings-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .settings-label {
+        font-size: 11px;
+        color: #888;
+        letter-spacing: 0.5px;
+      }
+      .settings-value {
+        font-size: 11px;
+        color: #ecf0f1;
+        font-weight: 600;
+      }
+      .settings-slider {
+        width: 100px;
+        height: 4px;
+        -webkit-appearance: none;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        outline: none;
+      }
+      .settings-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #3498db;
+        cursor: pointer;
+      }
+      .settings-toggle {
+        width: 36px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        position: relative;
+        border: none;
+        transition: background 0.2s;
+      }
+      .settings-toggle.on {
+        background: rgba(39, 174, 96, 0.4);
+      }
+      .settings-toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #aaa;
+        transition: all 0.2s;
+      }
+      .settings-toggle.on::after {
+        left: 18px;
+        background: #27ae60;
+      }
+      #fps-counter {
+        position: absolute;
+        top: 42px;
+        right: 8px;
+        background: rgba(8, 15, 25, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 9px;
+        color: #666;
+        letter-spacing: 1px;
+        pointer-events: none;
+        display: none;
+        z-index: 55;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="menu-screen">
+      <canvas id="menu-bg"></canvas>
+      <div class="menu-content">
+        <div class="menu-title">SOMALI WATERS</div>
+        <div class="menu-sub">Multiplayer Pirate Tycoon &bull; .IO</div>
+        <div class="menu-online" id="menu-online">CONNECTING...</div>
+        <input
+          id="name-input"
+          type="text"
+          placeholder="ENTER YOUR NAME"
+          maxlength="16"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="faction-cards">
+          <div class="faction-card fc-navy" data-faction="navy">
+            <div class="fc-icon"><i class="fas fa-shield-halved"></i></div>
+            <h3>EU NAVFORCE</h3>
+            <p>
+              Patrol the Gulf of Aden. Hunt pirates. Protect shipping lanes.
+            </p>
+            <ul>
+              <li>Intercept pirate vessels</li>
+              <li>Shoot pirates on sight</li>
+              <li>Refuel at naval bases</li>
+              <li>Upgrade weapons &amp; hull with score</li>
+            </ul>
+          </div>
+          <div class="faction-card fc-shipping" data-faction="shipping">
+            <div class="fc-icon"><i class="fas fa-ship"></i></div>
+            <h3>MARITIME CARGO</h3>
+            <p>
+              Run cargo through dangerous waters. Buy weapons. Grow your fleet.
+            </p>
+            <ul>
+              <li>Pick up contracts at ports</li>
+              <li>Purchase weapons to fight back</li>
+              <li>Upgrade to larger ships</li>
+              <li>Deliver cargo for big payouts</li>
+            </ul>
+          </div>
+          <div class="faction-card fc-pirate" data-faction="pirate">
+            <div class="fc-icon"><i class="fas fa-skull-crossbones"></i></div>
+            <h3>PIRATE CREW</h3>
+            <p>
+              Board ships. Sell loot. Upgrade your fleet. Dominate the waters.
+            </p>
+            <ul>
+              <li>Shoot and board merchant ships</li>
+              <li>Sell at 3 black markets</li>
+              <li>Upgrade weapons, hold &amp; ship size</li>
+              <li>Buy rum at islands</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cosmetic-section">
+          <div class="cosmetic-label">Ship Hull Color</div>
+          <div class="cosmetic-colors" id="cosmetic-colors">
+            <div
+              class="color-swatch selected"
+              data-color=""
+              style="background: linear-gradient(135deg, #888, #555)"
+              title="Default"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#1a1a2e"
+              style="background: #1a1a2e"
+              title="Midnight"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#e8e8e8"
+              style="background: #e8e8e8"
+              title="White"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#d4a017"
+              style="background: #d4a017"
+              title="Gold"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#8b0000"
+              style="background: #8b0000"
+              title="Crimson"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#1a5276"
+              style="background: #1a5276"
+              title="Ocean"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#145a32"
+              style="background: #145a32"
+              title="Forest"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#6c3483"
+              style="background: #6c3483"
+              title="Purple"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#2c3e50"
+              style="background: #2c3e50"
+              title="Gunmetal"
+            ></div>
+            <div
+              class="color-swatch"
+              data-color="#b7410e"
+              style="background: #b7410e"
+              title="Rust"
+            ></div>
+          </div>
+        </div>
+        <button id="deploy-btn">SELECT A FACTION</button>
       </div>
     </div>
-    <button id="deploy-btn">SELECT A FACTION</button>
-  </div>
-</div>
 
-<div id="game-screen">
-  <canvas id="game-canvas"></canvas>
-  <div id="hud">
-    <div class="hud-top">
-      <div class="hud-panel" id="hud-left">
-        <div class="faction-hud"><div class="faction-dot" id="faction-dot"></div><span id="faction-name">FACTION</span></div>
-        <div class="hud-label">HULL INTEGRITY</div>
-        <div class="bar-wrap"><div class="bar-fill bar-hp" id="hp-bar" style="width:100%"></div></div>
-        <div class="hud-label" id="resource-label">FUEL</div>
-        <div class="bar-wrap"><div class="bar-fill bar-fuel" id="fuel-bar" style="width:100%"></div></div>
-        <div class="hud-label" id="loot-label" style="display:none">LOOT</div>
-        <div class="bar-wrap" id="loot-bar-wrap" style="display:none"><div class="bar-fill bar-loot" id="loot-bar" style="width:0%"></div></div>
+    <div id="game-screen">
+      <canvas id="game-canvas"></canvas>
+      <div id="hud">
+        <div class="hud-top">
+          <div class="hud-panel" id="hud-left">
+            <div class="faction-hud">
+              <div class="faction-dot" id="faction-dot"></div>
+              <span id="faction-name">FACTION</span>
+            </div>
+            <div class="hud-label">HULL INTEGRITY</div>
+            <div class="bar-wrap">
+              <div
+                class="bar-fill bar-hp"
+                id="hp-bar"
+                style="width: 100%"
+              ></div>
+            </div>
+            <div class="hud-label" id="resource-label">FUEL</div>
+            <div class="bar-wrap">
+              <div
+                class="bar-fill bar-fuel"
+                id="fuel-bar"
+                style="width: 100%"
+              ></div>
+            </div>
+            <div class="hud-label" id="loot-label" style="display: none">
+              LOOT
+            </div>
+            <div class="bar-wrap" id="loot-bar-wrap" style="display: none">
+              <div
+                class="bar-fill bar-loot"
+                id="loot-bar"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+          <div class="hud-panel" id="hud-right">
+            <div class="hud-label">CREDITS</div>
+            <div class="hud-value" id="credits-display">$0</div>
+            <div class="hud-label" style="margin-top: 6px" id="threat-label">
+              THREAT LEVEL
+            </div>
+            <div
+              class="risk-indicator"
+              id="threat-display"
+              style="color: #27ae60"
+            >
+              LOW
+            </div>
+          </div>
+        </div>
+        <div id="minimap-wrap">
+          <canvas id="minimap" width="180" height="140"></canvas>
+        </div>
+        <div id="msg-log"></div>
+        <div id="interact-prompt">[E] INTERACT</div>
+        <div id="slow-indicator">INTERCEPTED — SLOWED</div>
+        <div id="stun-indicator">STUNNED</div>
+        <div id="safe-zone-hud">⛨ SAFE ZONE</div>
+        <div id="leaderboard">
+          <h4>Total Income</h4>
+          <div id="lb-rows"></div>
+        </div>
+        <div id="weapon-hud">NO WEAPON</div>
+        <div id="players-count">0 ONLINE</div>
+        <button id="settings-btn"><i class="fas fa-cog"></i></button>
+        <div id="fps-counter">0 FPS</div>
       </div>
-      <div class="hud-panel" id="hud-right">
-        <div class="hud-label">CREDITS</div>
-        <div class="hud-value" id="credits-display">$0</div>
-        <div class="hud-label" style="margin-top:6px" id="threat-label">THREAT LEVEL</div>
-        <div class="risk-indicator" id="threat-display" style="color:#27ae60">LOW</div>
+      <div id="contract-hud">
+        <div class="ch-label">ACTIVE CONTRACT</div>
+        <div class="ch-cargo" id="ch-cargo">—</div>
+        <div class="ch-dest" id="ch-dest">—</div>
+        <div class="ch-reward" id="ch-reward">—</div>
+        <div class="ch-dist" id="ch-dist">—</div>
+      </div>
+      <div class="controls-hint">
+        WASD Move &bull; LEFT CLICK Shoot &bull; E Dock/Board &bull; SPACE Boost
+        &bull; ESC Close
       </div>
     </div>
-    <div id="minimap-wrap"><canvas id="minimap" width="180" height="140"></canvas></div>
-    <div id="msg-log"></div>
-    <div id="interact-prompt">[E] INTERACT</div>
-    <div id="slow-indicator">INTERCEPTED — SLOWED</div>
-    <div id="stun-indicator">STUNNED</div>
-    <div id="leaderboard"><h4>Leaderboard</h4><div id="lb-rows"></div></div>
-    <div id="weapon-hud">NO WEAPON</div>
-    <div id="players-count">0 ONLINE</div>
-  </div>
-  <div id="contract-hud">
-    <div class="ch-label">ACTIVE CONTRACT</div>
-    <div class="ch-cargo" id="ch-cargo">—</div>
-    <div class="ch-dest" id="ch-dest">—</div>
-    <div class="ch-reward" id="ch-reward">—</div>
-    <div class="ch-dist" id="ch-dist">—</div>
-  </div>
-  <div class="controls-hint">WASD Move &bull; LEFT CLICK Shoot &bull; E Dock/Board &bull; SPACE Boost &bull; ESC Close</div>
-</div>
 
-<div id="drunk-overlay"></div>
-<div id="drunk-hud">DRUNK</div>
+    <div id="drunk-overlay"></div>
+    <div id="drunk-hud">DRUNK</div>
 
-<div id="shop-panel">
-  <button id="shop-close">&times;</button>
-  <div id="shop-content"></div>
-</div>
+    <div id="shop-panel">
+      <button id="shop-close">&times;</button>
+      <div id="shop-content"></div>
+    </div>
 
-<div id="gameover-screen">
-  <div class="go-title" id="go-title">MISSION FAILED</div>
-  <div class="go-sub" id="go-sub">Your vessel was lost.</div>
-  <div class="go-stats" id="go-stats"></div>
-  <button id="restart-btn">NEW OPERATION</button>
-</div>
+    <div id="settings-panel">
+      <h3>SETTINGS</h3>
+      <div class="settings-row">
+        <span class="settings-label">UI Scale</span>
+        <span class="settings-value" id="ui-scale-val">1.0x</span>
+        <input
+          type="range"
+          class="settings-slider"
+          id="ui-scale"
+          min="0.7"
+          max="1.5"
+          step="0.1"
+          value="1.0"
+        />
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Show FPS</span>
+        <button class="settings-toggle" id="toggle-fps"></button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Show Names</span>
+        <button class="settings-toggle on" id="toggle-names"></button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Minimap Size</span>
+        <span class="settings-value" id="minimap-size-val">Normal</span>
+        <input
+          type="range"
+          class="settings-slider"
+          id="minimap-size"
+          min="0"
+          max="2"
+          step="1"
+          value="1"
+        />
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Show Grid</span>
+        <button class="settings-toggle on" id="toggle-grid"></button>
+      </div>
+    </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-// ======================== WORLD CONFIG ========================
-const WW=3200,WH=2400;
-const DOCK_RANGE=80,BOARD_RANGE=45,INTERCEPT_RANGE=50;
+    <div id="gameover-screen">
+      <div class="go-title" id="go-title">MISSION FAILED</div>
+      <div class="go-sub" id="go-sub">Your vessel was lost.</div>
+      <div class="go-stats" id="go-stats"></div>
+      <button id="restart-btn">NEW OPERATION</button>
+    </div>
 
-const LAND_YEMEN=[[0,0],[WW,0],[WW,360],[2800,330],[2200,360],[1600,340],[1000,320],[600,360],[0,390]];
-const LAND_SOMALIA=[[0,430],[0,WH],[450,WH],[480,2000],[450,1600],[430,1200],[440,900],[480,720],[580,590],[680,560],[620,510],[520,480],[350,460],[180,445]];
-const ISLAND_POLYS=[[[1170,790],[1215,778],[1250,795],[1245,835],[1205,848],[1168,830]],[[860,1050],[905,1038],[938,1058],[932,1092],[895,1105],[858,1082]]];
-const LANES=[
-  {wp:[[1600,420],[1200,520],[1000,700],[1100,950],[1400,1300],[1800,1550],[2200,1750]],risk:'high'},
-  {wp:[[2700,370],[2200,370],[1600,380]],risk:'low'},
-  {wp:[[380,435],[750,575],[950,775],[1200,1000],[1500,1250],[1900,1550]],risk:'medium'}
-];
-const PORTS={
-  djibouti:{x:350,y:415,name:'Djibouti',f:'navy'},aden:{x:1600,y:420,name:'Aden',f:'neutral'},
-  bosaso:{x:650,y:550,name:'Bosaso',f:'pirate'},eyl:{x:560,y:700,name:'Eyl',f:'pirate'},
-  hobyo:{x:500,y:970,name:'Hobyo',f:'pirate'},mogadishu:{x:470,y:1250,name:'Mogadishu',f:'neutral'},
-  mombasa:{x:2200,y:1750,name:'Mombasa',f:'neutral'},saadin:{x:1205,y:815,name:'Saad ad-Din Isle',f:'island'},
-  ilig:{x:895,y:1075,name:'Ilig Isle',f:'island'}
-};
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // ======================== WORLD CONFIG ========================
+      const WW = 3200,
+        WH = 2400;
+      const DOCK_RANGE = 80,
+        BOARD_RANGE = 45,
+        INTERCEPT_RANGE = 50;
 
-const SHIP_COLORS={
-  patrol:{clr:'#5dade2',bclr:'#2e86c1'},coastal:{clr:'#82e0aa',bclr:'#27ae60'},
-  skiff:{clr:'#f1948a',bclr:'#e74c3c'},ai_merchant:{clr:'#aab7b8',bclr:'#7f8c8d'},
-  ai_pirate:{clr:'#e74c3c',bclr:'#922b21'},ai_navy:{clr:'#5dade2',bclr:'#2e86c1'},
-  fishing:{clr:'#d4ac6e',bclr:'#a67c3d'}
-};
+      const LAND_YEMEN = [
+        [0, 0],
+        [WW, 0],
+        [WW, 360],
+        [2800, 330],
+        [2200, 360],
+        [1600, 340],
+        [1000, 320],
+        [600, 360],
+        [0, 390],
+      ];
+      const LAND_SOMALIA = [
+        [0, 430],
+        [0, WH],
+        [450, WH],
+        [480, 2000],
+        [450, 1600],
+        [430, 1200],
+        [440, 900],
+        [480, 720],
+        [580, 590],
+        [680, 560],
+        [620, 510],
+        [520, 480],
+        [350, 460],
+        [180, 445],
+      ];
+      const ISLAND_POLYS = [
+        [
+          [1170, 790],
+          [1215, 778],
+          [1250, 795],
+          [1245, 835],
+          [1205, 848],
+          [1168, 830],
+        ],
+        [
+          [860, 1050],
+          [905, 1038],
+          [938, 1058],
+          [932, 1092],
+          [895, 1105],
+          [858, 1082],
+        ],
+        [
+          [1770, 630],
+          [1820, 618],
+          [1855, 638],
+          [1845, 672],
+          [1805, 682],
+          [1768, 660],
+        ],
+      ];
+      const LANES = [
+        {
+          wp: [
+            [1600, 420],
+            [1200, 520],
+            [1000, 700],
+            [1100, 950],
+            [1400, 1300],
+            [1800, 1550],
+            [2200, 1750],
+          ],
+          risk: "high",
+        },
+        {
+          wp: [
+            [2700, 370],
+            [2200, 370],
+            [1600, 380],
+          ],
+          risk: "low",
+        },
+        {
+          wp: [
+            [380, 435],
+            [750, 575],
+            [950, 775],
+            [1200, 1000],
+            [1500, 1250],
+            [1900, 1550],
+          ],
+          risk: "medium",
+        },
+      ];
+      const PORTS = {
+        djibouti: { x: 350, y: 415, name: "Djibouti", f: "navy" },
+        mukalla: { x: 1100, y: 355, name: "Mukalla", f: "navy" },
+        aden: { x: 1600, y: 420, name: "Aden", f: "neutral" },
+        salalah: { x: 2500, y: 385, name: "Salalah", f: "neutral" },
+        berbera: { x: 520, y: 490, name: "Berbera", f: "neutral" },
+        bosaso: { x: 650, y: 550, name: "Bosaso", f: "pirate" },
+        eyl: { x: 560, y: 700, name: "Eyl", f: "pirate" },
+        hobyo: { x: 500, y: 970, name: "Hobyo", f: "pirate" },
+        kismayo: { x: 460, y: 1700, name: "Kismayo", f: "pirate" },
+        mogadishu: { x: 470, y: 1250, name: "Mogadishu", f: "neutral" },
+        mombasa: { x: 2200, y: 1750, name: "Mombasa", f: "neutral" },
+        saadin: { x: 1205, y: 815, name: "Saad ad-Din Isle", f: "island" },
+        ilig: { x: 895, y: 1075, name: "Ilig Isle", f: "island" },
+        socotra: { x: 1805, y: 655, name: "Socotra Isle", f: "island" },
+      };
 
-// ======================== STATE ========================
-let socket=null;
-let myFaction=null, myName='', myShipId=null;
-let gameState=null, prevState=null;
-let shopOpen=false, currentShopPort=null;
-let canvas,ctx,mcanvas,mctx;
-let keys={}, mouseX=0, mouseY=0, mouseDown=false;
-let cam={x:WW/2,y:WH/2};
-let selectedFaction=null;
-let lastRender=0, interpFactor=0;
-let connected=false;
-let lastMessages=[];
-let hitEffects=[];
+      const SHIP_COLORS = {
+        patrol: { clr: "#5dade2", bclr: "#2e86c1" },
+        coastal: { clr: "#82e0aa", bclr: "#27ae60" },
+        skiff: { clr: "#f1948a", bclr: "#e74c3c" },
+        ai_merchant: { clr: "#aab7b8", bclr: "#7f8c8d" },
+        ai_pirate: { clr: "#e74c3c", bclr: "#922b21" },
+        ai_navy: { clr: "#5dade2", bclr: "#2e86c1" },
+        fishing: { clr: "#d4ac6e", bclr: "#a67c3d" },
+      };
 
-function fmt$(n){return '$'+Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
-function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)}
-function lerp(a,b,t){return a+(b-a)*t}
-function lerpAng(a,b,t){let d=b-a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return a+d*t}
-function w2s(wx,wy){return{x:wx-cam.x,y:wy-cam.y}}
-function vis(wx,wy,m){return wx>cam.x-m&&wx<cam.x+canvas.width+m&&wy>cam.y-m&&wy<cam.y+canvas.height+m}
+      // ======================== STATE ========================
+      let socket = null;
+      let myFaction = null,
+        myName = "",
+        myShipId = null;
+      let gameState = null;
+      let shopOpen = false,
+        currentShopPort = null;
+      let canvas, ctx, mcanvas, mctx;
+      let keys = {},
+        mouseX = 0,
+        mouseY = 0,
+        mouseDown = false;
+      let cam = { x: WW / 2, y: WH / 2 };
+      let selectedFaction = null;
+      let selectedCosmetic = "";
+      let lastRender = 0;
+      let connected = false;
+      let lastMessages = [];
+      let settingsOpen = false;
+        const settings = {
+          uiScale: 1.0,
+          showFps: false,
+          showNames: true,
+          minimapSize: 1,
+          showGrid: true,
+        };
+      let fpsFrames = 0,
+        fpsTime = 0,
+        fpsDisplay = 0;
 
-// ======================== INTERPOLATION ========================
-const interpBuffer=new Map();
-const INTERP_DELAY=100;
-
-function storeState(state){
-  const now=performance.now();
-  for(const s of state.ships){
-    if(!interpBuffer.has(s.id)) interpBuffer.set(s.id,[]);
-    const buf=interpBuffer.get(s.id);
-    buf.push({time:now,x:s.x,y:s.y,angle:s.angle,hp:s.hp,maxHp:s.maxHp,faction:s.faction,sz:s.sz,
-      typeKey:s.typeKey,state:s.state,slowed:s.slowed,boardProgress:s.boardProgress,
-      name:s.name,status:s.status,isPlayer:s.isPlayer,ownerId:s.ownerId,alive:s.alive,stunTimer:s.stunTimer||0});
-    while(buf.length>10) buf.shift();
-  }
-  // Clean old entries
-  for(const [id,buf] of interpBuffer){
-    if(!state.ships.find(s=>s.id===id)) interpBuffer.delete(id);
-  }
-}
-
-function getInterpShip(id){
-  const buf=interpBuffer.get(id);
-  if(!buf||buf.length<2) return buf?buf[buf.length-1]:null;
-  const renderTime=performance.now()-INTERP_DELAY;
-  let i=0;
-  while(i<buf.length-1&&buf[i+1].time<=renderTime) i++;
-  if(i>=buf.length-1) return buf[buf.length-1];
-  const a=buf[i],b=buf[i+1];
-  const t=Math.min(1,(renderTime-a.time)/(b.time-a.time));
-  return{
-    ...b,
-    x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),
-    angle:lerpAng(a.angle,b.angle,t),
-    hp:lerp(a.hp,b.hp,t)
-  };
-}
-
-// ======================== SOCKET ========================
-function connectSocket(){
-  socket=io();
-  socket.on('connect',()=>{
-    connected=true;
-    document.getElementById('menu-online').textContent='CONNECTED — MULTIPLAYER';
-    document.getElementById('menu-online').style.color='#27ae60';
-  });
-  socket.on('disconnect',()=>{
-    connected=false;
-    document.getElementById('menu-online').textContent='DISCONNECTED';
-    document.getElementById('menu-online').style.color='#e74c3c';
-  });
-  socket.on('full',()=>{
-    document.getElementById('menu-online').textContent='SERVER FULL — TRY AGAIN';
-    document.getElementById('menu-online').style.color='#f39c12';
-  });
-  socket.on('joined',(data)=>{
-    myFaction=data.faction;
-    myShipId=data.shipId;
-    document.getElementById('menu-screen').style.display='none';
-    document.getElementById('game-screen').style.display='block';
-    document.getElementById('gameover-screen').style.display='none';
-    document.getElementById('faction-name').textContent=data.faction==='navy'?'EU NAVFORCE':data.faction==='shipping'?'MARITIME CARGO':'PIRATE CREW';
-    document.getElementById('faction-dot').className='faction-dot '+(data.faction==='navy'?'navy':data.faction==='shipping'?'ship':'pirate');
-    if(data.faction==='pirate'){
-      document.getElementById('loot-label').style.display='block';
-      document.getElementById('loot-bar-wrap').style.display='block';
-    }
-  });
-
-  socket.on('state',(data)=>{
-    prevState=gameState;
-    gameState=data;
-    storeState(data);
-    updateHUD(data.self);
-    updateMessages(data.messages);
-    updateLeaderboard(data.leaderboard);
-    document.getElementById('players-count').textContent=(data.leaderboard?.length||0)+' ONLINE';
-  });
-
-  socket.on('shopOpen',(data)=>{
-    renderShop(data);
-    shopOpen=true;
-    currentShopPort=data.portKey;
-  });
-
-  socket.on('gameOver',(stats)=>{
-    document.getElementById('game-screen').style.display='none';
-    document.getElementById('shop-panel').style.display='none';
-    document.getElementById('gameover-screen').style.display='flex';
-    document.getElementById('go-title').textContent=stats.title;
-    document.getElementById('go-sub').textContent=stats.sub;
-    const s=document.getElementById('go-stats');s.innerHTML='';
-    if(stats.intercepts!==undefined) s.innerHTML+='<div>Intercepts<span>'+stats.intercepts+'</span></div>';
-    if(stats.score!==undefined) s.innerHTML+='<div>Final Score<span>'+fmt$(stats.score)+'</span></div>';
-    if(stats.money!==undefined) s.innerHTML+='<div>Total Earnings<span>'+fmt$(stats.money)+'</span></div>';
-    if(stats.deliveries!==undefined) s.innerHTML+='<div>Deliveries<span>'+stats.deliveries+'</span></div>';
-    if(stats.shipsSeized!==undefined) s.innerHTML+='<div>Ships Seized<span>'+stats.shipsSeized+'</span></div>';
-    shopOpen=false;
-  });
-}
-
-// ======================== INPUT ========================
-function sendInput(){
-  if(!socket||!myFaction||!gameState) return;
-  let shootAngle=0;
-  if(gameState.self){
-    const sx=canvas.width/2, sy=canvas.height/2;
-    shootAngle=Math.atan2(mouseY-sy,mouseX-sx);
-  }
-  socket.volatile.emit('input',{
-    w:!!keys['w']||!!keys['arrowup'],
-    a:!!keys['a']||!!keys['arrowleft'],
-    s:!!keys['s']||!!keys['arrowdown'],
-    d:!!keys['d']||!!keys['arrowright'],
-    space:!!keys[' '],
-    shoot:mouseDown,
-    mouseAngle:shootAngle
-  });
-}
-
-// ======================== HUD ========================
-function updateHUD(self){
-  if(!self) return;
-  document.getElementById('hp-bar').style.width=(self.hp/self.maxHp*100)+'%';
-  if(myFaction==='pirate'){
-    document.getElementById('drunk-overlay').style.display=self.drunk>0?'block':'none';
-    document.getElementById('drunk-hud').style.display=self.drunk>0?'block':'none';
-    if(self.drunk>0) document.getElementById('drunk-hud').textContent='DRUNK '+Math.ceil(self.drunk)+'s';
-  }
-  if(myFaction==='navy'){
-    document.getElementById('fuel-bar').style.width=self.fuel+'%';
-    document.getElementById('resource-label').textContent='FUEL';
-    document.getElementById('credits-display').textContent=fmt$(self.score);
-    document.getElementById('loot-label').style.display='none';
-    document.getElementById('loot-bar-wrap').style.display='none';
-    document.getElementById('threat-label').textContent='INTERCEPTS';
-    document.getElementById('threat-display').textContent=self.intercepts;
-    document.getElementById('threat-display').style.color='#3498db';
-  } else if(myFaction==='shipping'){
-    document.getElementById('fuel-bar').style.width=Math.min(100,self.money/100)+'%';
-    document.getElementById('resource-label').textContent='BALANCE';
-    document.getElementById('credits-display').textContent=fmt$(self.money);
-    document.getElementById('loot-label').style.display='none';
-    document.getElementById('loot-bar-wrap').style.display='none';
-    document.getElementById('threat-label').textContent='DELIVERIES';
-    document.getElementById('threat-display').textContent=self.deliveries;
-    document.getElementById('threat-display').style.color='#27ae60';
-  } else if(myFaction==='pirate'){
-    document.getElementById('fuel-bar').style.width=(self.loot/self.maxLoot*100)+'%';
-    document.getElementById('resource-label').textContent='LOOT HOLD';
-    document.getElementById('credits-display').textContent=fmt$(self.money);
-    document.getElementById('loot-label').style.display='block';
-    document.getElementById('loot-bar-wrap').style.display='block';
-    document.getElementById('loot-bar').style.width=(self.loot/self.maxLoot*100)+'%';
-    document.getElementById('threat-label').textContent='THREAT LEVEL';
-    document.getElementById('threat-display').textContent='LOW';
-    document.getElementById('threat-display').style.color='#27ae60';
-  }
-  document.getElementById('slow-indicator').style.display=self.slowed?'block':'none';
-  const weaponEl=document.getElementById('weapon-hud');
-  if(self.weaponDamage>0){weaponEl.style.display='block';weaponEl.textContent='DMG: '+self.weaponDamage;weaponEl.className=mouseDown?'weapon-cooldown':'weapon-ready';}
-  else if(myFaction==='shipping'){weaponEl.style.display='block';weaponEl.textContent='NO WEAPON — BUY AT PORT';}
-  else{weaponEl.style.display='none';}
-
-  if(self.boardState!==null&&self.boardState!==undefined){
-    const pr=document.getElementById('interact-prompt');
-    pr.style.display='block';
-    pr.textContent=(myFaction==='pirate'?'BOARDING... ':'INTERCEPTING... ')+Math.floor(self.boardState*100)+'%';
-  }
-
-  if(myFaction==='shipping'&&self.contract){
-    const c=self.contract; const dest=PORTS[c.to];
-    if(dest&&self.x&&self.y){
-      const d=Math.floor(Math.sqrt((self.x-dest.x)**2+(self.y-dest.y)**2));
-      document.getElementById('ch-cargo').textContent=c.cargo;
-      document.getElementById('ch-dest').textContent='\u2192 '+dest.name;
-      document.getElementById('ch-reward').textContent='+ '+fmt$(c.reward);
-      document.getElementById('ch-dist').textContent=d+'km away';
-      document.getElementById('contract-hud').style.display='block';
-    }
-  } else {
-    document.getElementById('contract-hud').style.display='none';
-  }
-}
-
-function updateMessages(msgs){
-  if(!msgs) return;
-  const log=document.getElementById('msg-log');
-  const key=JSON.stringify(msgs);
-  if(key===lastMessages) return;
-  lastMessages=key;
-  log.innerHTML='';
-  msgs.forEach(m=>{
-    const el=document.createElement('div');
-    el.className='msg '+m.type;
-    el.textContent=m.text;
-    log.appendChild(el);
-  });
-}
-
-function updateLeaderboard(lb){
-  if(!lb) return;
-  const rows=document.getElementById('lb-rows');
-  rows.innerHTML='';
-  lb.forEach((e,i)=>{
-    const fc=e.faction==='navy'?'#3498db':e.faction==='pirate'?'#e74c3c':'#27ae60';
-    rows.innerHTML+='<div class="lb-row"><span class="lb-name" style="color:'+fc+'">'+(i+1)+'. '+e.name+'</span><span class="lb-score" style="color:'+fc+'">'+fmt$(e.score)+'</span></div>';
-  });
-}
-
-// ======================== SHOP ========================
-function renderShop(data){
-  const panel=document.getElementById('shop-panel');
-  let html='<h3>'+data.portName+'</h3>';
-  for(const sec of data.sections){
-    html+='<div class="shop-section-title">'+sec.title+'</div>';
-    for(const item of sec.items){
-      html+='<div class="shop-item"><div class="si-info"><div class="si-name">'+(item.name||'')+'</div>';
-      if(item.desc) html+='<div class="si-desc">'+item.desc+'</div>';
-      html+='</div>';
-      if(item.marketState){
-        const sc=item.marketState==='LOCKDOWN'?'market-lock':item.marketState==='HIGH_RISK'?'market-risk':'market-open';
-        html+='<div class="market-badge '+sc+'">'+item.marketState+'</div>';
+      function fmt$(n) {
+        return (
+          "$" +
+          Math.floor(n)
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        );
       }
-      if(item.action){
-        const canBuy=item.canBuy!==false;
-        const btnClass=item.action==='deliver'?'deliver-btn '+(canBuy?'can-buy':'cant-buy'):canBuy?'can-buy':'cant-buy';
-        const label=item.action==='deliver'?'DELIVER +'+fmt$(item.reward):
-                    item.action==='pickup'?'ACCEPT':
-                    item.action==='sellall'?(item.canBuy?fmt$(item.reward||0):'CLOSED'):
-                    item.scoreCost?fmt$(item.scoreCost)+' PTS':
-                    item.cost?fmt$(item.cost):'FREE';
-        let dataAttrs='data-action="'+item.action+'" data-port="'+data.portKey+'"';
-        if(item.id) dataAttrs+=' data-id="'+item.id+'"';
-        if(item.cargo) dataAttrs+=' data-cargo="'+item.cargo+'"';
-        if(item.to) dataAttrs+=' data-to="'+item.to+'"';
-        if(item.reward) dataAttrs+=' data-reward="'+item.reward+'"';
-        html+='<button class="si-btn '+btnClass+'" '+(canBuy?'':'disabled')+' '+dataAttrs+'>'+label+'</button>';
+      function dist(a, b) {
+        return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
       }
-      if(item.inTransit) html+='<span style="color:#e74c3c;font-size:10px;padding:0 9px">IN TRANSIT</span>';
-      html+='</div>';
-    }
-  }
-  document.getElementById('shop-content').innerHTML=html;
-  panel.style.display='block';
-  panel.querySelectorAll('[data-action]').forEach(btn=>{
-    btn.addEventListener('click',function(){
-      const d=this.dataset;
-      socket.emit('shopAction',{action:d.action,portKey:d.port,id:d.id,cargo:d.cargo,to:d.to,reward:d.reward?parseInt(d.reward):0});
-      if(d.action==='buyrum'||d.action==='deliver'||d.action==='shipspeed'||d.action==='refuel') closeShop();
-    });
-  });
-}
-
-function closeShop(){
-  document.getElementById('shop-panel').style.display='none';
-  shopOpen=false; currentShopPort=null;
-}
-
-// ======================== RENDERING ========================
-function render(ts){
-  requestAnimationFrame(render);
-  if(!gameState||!canvas) return;
-
-  const dt=(ts-lastRender)/1000;
-  lastRender=ts;
-
-  // Camera follows own ship
-  if(gameState.self&&gameState.self.x!==undefined){
-    cam.x=lerp(cam.x,gameState.self.x-canvas.width/2,0.12);
-    cam.y=lerp(cam.y,gameState.self.y-canvas.height/2,0.12);
-    cam.x=Math.max(0,Math.min(WW-canvas.width,cam.x));
-    cam.y=Math.max(0,Math.min(WH-canvas.height,cam.y));
-  }
-
-  ctx.fillStyle='#0a1628';ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // Water waves
-  const gt=gameState.time||0;
-  for(let i=0;i<10;i++){
-    ctx.strokeStyle='rgba(15,45,90,'+(0.06+i*0.008)+')';ctx.lineWidth=1;ctx.beginPath();
-    const baseY=((cam.y*0.3+i*90+gt*8)%(canvas.height+200))-100;
-    for(let x=0;x<canvas.width;x+=10){
-      const y=baseY+Math.sin((x+cam.x)*0.007+gt*0.4+i*0.7)*18+Math.sin((x+cam.x)*0.013+gt*0.25)*10;
-      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    }
-    ctx.stroke();
-  }
-
-  // Grid
-  ctx.strokeStyle='rgba(25,50,80,0.25)';ctx.lineWidth=1;
-  const gs=120;
-  const gsx=Math.floor(cam.x/gs)*gs,gsy=Math.floor(cam.y/gs)*gs;
-  for(let x=gsx;x<cam.x+canvas.width+gs;x+=gs){const s=w2s(x,0);ctx.beginPath();ctx.moveTo(s.x,0);ctx.lineTo(s.x,canvas.height);ctx.stroke();}
-  for(let y=gsy;y<cam.y+canvas.height+gs;y+=gs){const s=w2s(0,y);ctx.beginPath();ctx.moveTo(0,s.y);ctx.lineTo(canvas.width,s.y);ctx.stroke();}
-
-  // Land
-  ctx.fillStyle='#1c2d40';drawPoly(ctx,LAND_YEMEN);drawPoly(ctx,LAND_SOMALIA);
-  ctx.fillStyle='#3d3520';ISLAND_POLYS.forEach(p=>drawPoly(ctx,p));
-  ctx.strokeStyle='rgba(60,90,120,0.4)';ctx.lineWidth=2;drawPolyBorder(ctx,LAND_YEMEN);drawPolyBorder(ctx,LAND_SOMALIA);
-  ctx.strokeStyle='rgba(120,100,50,0.3)';ctx.lineWidth=1;ISLAND_POLYS.forEach(p=>drawPolyBorder(ctx,p));
-
-  // Lanes
-  ctx.strokeStyle='rgba(80,160,220,0.15)';ctx.lineWidth=2;ctx.setLineDash([12,6]);
-  LANES.forEach(l=>{ctx.beginPath();l.wp.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.stroke();});
-  ctx.setLineDash([]);
-
-  // Ports
-  for(const [key,port] of Object.entries(PORTS)){
-    if(!vis(port.x,port.y,100)) continue;
-    const p=w2s(port.x,port.y);
-    ctx.fillStyle=port.f==='pirate'?'rgba(231,76,60,0.08)':port.f==='navy'?'rgba(52,152,219,0.08)':port.f==='island'?'rgba(180,150,60,0.1)':'rgba(150,150,150,0.06)';
-    ctx.beginPath();ctx.arc(p.x,p.y,DOCK_RANGE,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle=port.f==='pirate'?'rgba(231,76,60,0.25)':port.f==='navy'?'rgba(52,152,219,0.25)':port.f==='island'?'rgba(180,150,60,0.3)':'rgba(150,150,150,0.15)';
-    ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle=port.f==='pirate'?'#e74c3c':port.f==='navy'?'#3498db':port.f==='island'?'#d4a017':'#95a5a6';
-    ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#0a1628';ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#c0c8d0';ctx.font='600 11px Rajdhani';ctx.textAlign='center';ctx.fillText(port.name,p.x,p.y+20);
-    if(port.f==='island'){ctx.fillStyle='#d4a01780';ctx.font='9px Rajdhani';ctx.fillText('ISLAND',p.x,p.y+32);}
-    if(myFaction==='shipping'&&gameState.self?.contract&&gameState.self.contract.to===key){
-      ctx.strokeStyle='#f39c12';ctx.lineWidth=2;
-      const pulse=Math.sin(gt*3)*4+DOCK_RANGE+10;
-      ctx.beginPath();ctx.arc(p.x,p.y,pulse,0,Math.PI*2);ctx.stroke();
-      ctx.fillStyle='#f39c12';ctx.font='bold 10px Rajdhani';ctx.fillText('DELIVER HERE',p.x,p.y-DOCK_RANGE-8);
-    }
-  }
-
-  // Ships (with interpolation)
-  if(gameState.ships){
-    for(const ship of gameState.ships){
-      const s=getInterpShip(ship.id)||ship;
-      if(!vis(s.x,s.y,s.sz*4)) continue;
-      drawShip(s,ship.ownerId===socket.id);
-    }
-  }
-
-  // Projectiles
-  if(gameState.projectiles){
-    for(const p of gameState.projectiles){
-      const s=w2s(p.x,p.y);
-      ctx.fillStyle=p.faction==='navy'?'#5dade2':p.faction==='pirate'?'#e74c3c':'#f39c12';
-      ctx.beginPath();ctx.arc(s.x,s.y,3,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle=(p.faction==='navy'?'#5dade2':p.faction==='pirate'?'#e74c3c':'#f39c12')+'60';
-      ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-p.vx*3,s.y-p.vy*3);ctx.stroke();
-      ctx.fillStyle=(p.faction==='navy'?'#5dade2':p.faction==='pirate'?'#e74c3c':'#f39c12')+'30';
-      ctx.beginPath();ctx.arc(s.x,s.y,6,0,Math.PI*2);ctx.fill();
-    }
-  }
-
-  // Hit effects
-  for(let i=hitEffects.length-1;i>=0;i--){
-    const h=hitEffects[i];
-    h.life-=dt;
-    if(h.life<=0){hitEffects.splice(i,1);continue;}
-    const s=w2s(h.x,h.y);
-    const alpha=h.life/h.maxLife;
-    ctx.strokeStyle='rgba(255,200,50,'+alpha+')';ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(s.x,s.y,(1-alpha)*15+5,0,Math.PI*2);ctx.stroke();
-  }
-
-  // Interaction prompts
-  const prompt=document.getElementById('interact-prompt');
-  if(gameState.self&&gameState.self.boardState===null){
-    let show=false;
-    for(const [key,port] of Object.entries(PORTS)){
-      if(gameState.self.x&&dist(gameState.self,port)<DOCK_RANGE+15){
-        prompt.textContent='[E] DOCK AT '+port.name.toUpperCase();show=true;break;
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
       }
-    }
-    if(!show) prompt.style.display='none';
-    else prompt.style.display='block';
-  }
-
-  // Crosshair line from player to mouse
-  if(gameState.self&&gameState.self.weaponDamage>0&&gameState.self.alive){
-    const sx=canvas.width/2,sy=canvas.height/2;
-    const a=Math.atan2(mouseY-sy,mouseX-sx);
-    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.setLineDash([4,8]);
-    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+Math.cos(a)*80,sy+Math.sin(a)*80);ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  renderMinimap();
-  sendInput();
-}
-
-function drawShip(s,isMe){
-  const sc=w2s(s.x,s.y);
-  const colors=SHIP_COLORS[s.typeKey]||{clr:'#888',bclr:'#555'};
-  ctx.save();ctx.translate(sc.x,sc.y);ctx.rotate(s.angle);
-  ctx.fillStyle=colors.bclr;ctx.beginPath();
-  ctx.moveTo(-s.sz,0);ctx.lineTo(s.sz*0.6,-s.sz*0.55);ctx.lineTo(s.sz*1.1,0);ctx.lineTo(s.sz*0.6,s.sz*0.55);
-  ctx.closePath();ctx.fill();
-  ctx.fillStyle=colors.clr;ctx.fillRect(-s.sz*0.25,-s.sz*0.28,s.sz*0.85,s.sz*0.56);
-  const fc=s.faction==='navy'?'#3498db':s.faction==='pirate'?'#e74c3c':s.faction==='ship'?'#27ae60':'#888';
-  ctx.fillStyle=fc;ctx.beginPath();ctx.arc(0,0,s.sz*0.22,0,Math.PI*2);ctx.fill();
-  if(isMe){
-    ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,s.sz*0.5,0,Math.PI*2);ctx.stroke();
-  }
-  if(s.isPlayer&&!isMe){
-    ctx.strokeStyle=fc+'80';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,s.sz*0.5,0,Math.PI*2);ctx.stroke();
-  }
-  if(s.state==='boarding'&&s.boardProgress>0){
-    ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=3;
-    ctx.beginPath();ctx.arc(0,0,s.sz*0.8,-Math.PI/2,-Math.PI/2+Math.PI*2*s.boardProgress);ctx.stroke();
-  }
-  // Stun indicator
-  if(s.stunTimer>0){
-    ctx.strokeStyle='rgba(243,156,18,0.7)';ctx.lineWidth=2;
-    const pulse=Math.sin(performance.now()*0.01)*3;
-    ctx.beginPath();ctx.arc(0,0,s.sz+4+pulse,0,Math.PI*2);ctx.stroke();
-  }
-  ctx.restore();
-
-  // HP bar
-  if(!isMe&&s.hp<s.maxHp){
-    const bx=sc.x-s.sz,by=sc.y-s.sz-10;
-    ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(bx,by,s.sz*2,4);
-    ctx.fillStyle=s.hp/s.maxHp>0.5?'#27ae60':s.hp/s.maxHp>0.2?'#f39c12':'#e74c3c';
-    ctx.fillRect(bx,by,s.sz*2*(s.hp/s.maxHp),4);
-  }
-  if(s.slowed&&!isMe){
-    ctx.fillStyle='rgba(231,76,60,0.7)';ctx.font='bold 9px Rajdhani';ctx.textAlign='center';
-    ctx.fillText('SLOWED',sc.x,sc.y-s.sz-14);
-  }
-  if(s.stunTimer>0){
-    ctx.fillStyle='rgba(243,156,18,0.9)';ctx.font='bold 9px Rajdhani';ctx.textAlign='center';
-    ctx.fillText('STUNNED',sc.x,sc.y-s.sz-(s.hp<s.maxHp?20:14));
-  }
-  // Name tag
-  if(s.name&&gameState.self&&gameState.self.x){
-    const d=Math.sqrt((gameState.self.x-s.x)**2+(gameState.self.y-s.y)**2);
-    if(d<180||s.isPlayer){
-      const label=s.name;
-      ctx.font='10px Rajdhani';ctx.textAlign='center';
-      const tw=ctx.measureText(label).width+12;
-      const ny=sc.y-s.sz-22-(s.stunTimer>0?6:0);
-      ctx.fillStyle='rgba(8,15,25,0.9)';ctx.fillRect(sc.x-tw/2,ny-10,tw,20);
-      ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.strokeRect(sc.x-tw/2,ny-10,tw,20);
-      ctx.fillStyle=s.isPlayer?fc:'#ecf0f1';
-      ctx.fillText(label,sc.x,ny+4);
-    }
-  }
-}
-
-function drawPoly(ctx,poly){ctx.beginPath();poly.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.closePath();ctx.fill();}
-function drawPolyBorder(ctx,poly){ctx.beginPath();poly.forEach((p,i)=>{const s=w2s(p[0],p[1]);i===0?ctx.moveTo(s.x,s.y):ctx.lineTo(s.x,s.y);});ctx.closePath();ctx.stroke();}
-
-function renderMinimap(){
-  mctx.fillStyle='#0a1628';mctx.fillRect(0,0,180,140);
-  const sx=180/WW,sy=140/WH;
-  mctx.fillStyle='#1c2d40';
-  drawMiniPoly(mctx,LAND_SOMALIA,sx,sy);drawMiniPoly(mctx,LAND_YEMEN,sx,sy);
-  mctx.fillStyle='#3d3520';ISLAND_POLYS.forEach(p=>drawMiniPoly(mctx,p,sx,sy));
-  mctx.strokeStyle='rgba(80,160,220,0.2)';mctx.lineWidth=1;
-  LANES.forEach(l=>{mctx.beginPath();l.wp.forEach((p,i)=>{i===0?mctx.moveTo(p[0]*sx,p[1]*sy):mctx.lineTo(p[0]*sx,p[1]*sy);});mctx.stroke();});
-  for(const [key,p] of Object.entries(PORTS)){
-    mctx.fillStyle=p.f==='pirate'?'#e74c3c':p.f==='navy'?'#3498db':p.f==='island'?'#d4a017':'#95a5a6';
-    mctx.beginPath();mctx.arc(p.x*sx,p.y*sy,2.5,0,Math.PI*2);mctx.fill();
-    if(myFaction==='shipping'&&gameState?.self?.contract&&gameState.self.contract.to===key){
-      mctx.strokeStyle='#f39c12';mctx.lineWidth=1;
-      mctx.beginPath();mctx.arc(p.x*sx,p.y*sy,4+Math.sin((gameState.time||0)*4)*2,0,Math.PI*2);mctx.stroke();
-    }
-  }
-  if(gameState?.ships){
-    for(const s of gameState.ships){
-      if(!s.alive&&s.alive!==undefined) continue;
-      const mx=s.x*sx,my=s.y*sy;
-      if(mx<-5||mx>185||my<-5||my>145) continue;
-      mctx.fillStyle=s.faction==='navy'?'#3498db':s.faction==='pirate'?'#e74c3c':s.faction==='ship'?'#27ae60':'#888';
-      if(s.ownerId===socket?.id){
-        mctx.strokeStyle='#fff';mctx.lineWidth=1;mctx.beginPath();mctx.arc(mx,my,3.5,0,Math.PI*2);mctx.fill();mctx.stroke();
-      } else if(s.isPlayer){
-        mctx.strokeStyle=mctx.fillStyle;mctx.lineWidth=1;mctx.beginPath();mctx.arc(mx,my,2.5,0,Math.PI*2);mctx.fill();mctx.stroke();
-      } else {
-        mctx.beginPath();mctx.arc(mx,my,1.5,0,Math.PI*2);mctx.fill();
+      function lerpAng(a, b, t) {
+        let d = b - a;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        return a + d * t;
       }
-    }
-  }
-  const vx=cam.x*sx,vy=cam.y*sy,vw=canvas.width*sx,vh=canvas.height*sy;
-  mctx.strokeStyle='rgba(255,255,255,0.35)';mctx.lineWidth=1;mctx.strokeRect(vx,vy,vw,vh);
-}
-
-function drawMiniPoly(ctx,poly,sx,sy){ctx.beginPath();poly.forEach((p,i)=>{i===0?ctx.moveTo(p[0]*sx,p[1]*sy):ctx.lineTo(p[0]*sx,p[1]*sy);});ctx.closePath();ctx.fill();}
-
-// ======================== INIT ========================
-function init(){
-  canvas=document.getElementById('game-canvas');
-  ctx=canvas.getContext('2d');
-  mcanvas=document.getElementById('minimap');
-  mctx=mcanvas.getContext('2d');
-
-  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-  window.addEventListener('resize',resize);resize();
-
-  // Menu background
-  const mc=document.getElementById('menu-bg');
-  const mc2=mc.getContext('2d');
-  function resizeMenu(){mc.width=window.innerWidth;mc.height=window.innerHeight;}
-  window.addEventListener('resize',resizeMenu);resizeMenu();
-  let mt=0;
-  function animMenu(){
-    mt+=0.01;
-    mc2.fillStyle='#060e1a';mc2.fillRect(0,0,mc.width,mc.height);
-    mc2.strokeStyle='rgba(52,152,219,0.12)';mc2.lineWidth=2;
-    for(let i=0;i<6;i++){
-      mc2.beginPath();
-      for(let x=0;x<mc.width;x+=12){
-        const y=mc.height*0.55+Math.sin(x*0.008+mt+i*0.8)*25+i*18;
-        x===0?mc2.moveTo(x,y):mc2.lineTo(x,y);
+      function w2s(wx, wy) {
+        return { x: wx - cam.x, y: wy - cam.y };
       }
-      mc2.stroke();
-    }
-    mc2.fillStyle='#1c2d40';
-    mc2.beginPath();LAND_YEMEN.forEach((p,i)=>{const sx2=p[0]/WW*mc.width,sy2=p[1]/WH*mc.height;i===0?mc2.moveTo(sx2,sy2):mc2.lineTo(sx2,sy2);});mc2.closePath();mc2.fill();
-    mc2.beginPath();LAND_SOMALIA.forEach((p,i)=>{const sx2=p[0]/WW*mc.width,sy2=p[1]/WH*mc.height;i===0?mc2.moveTo(sx2,sy2):mc2.lineTo(sx2,sy2);});mc2.closePath();mc2.fill();
-    mc2.fillStyle='#3d3520';
-    ISLAND_POLYS.forEach(poly=>{mc2.beginPath();poly.forEach((p,i)=>{const sx2=p[0]/WW*mc.width,sy2=p[1]/WH*mc.height;i===0?mc2.moveTo(sx2,sy2):mc2.lineTo(sx2,sy2);});mc2.closePath();mc2.fill();});
-    for(const p of Object.values(PORTS)){
-      mc2.fillStyle=p.f==='pirate'?'#e74c3c':p.f==='navy'?'#3498db':p.f==='island'?'#d4a017':'#95a5a6';
-      mc2.beginPath();mc2.arc(p.x/WW*mc.width,p.y/WH*mc.height,4,0,Math.PI*2);mc2.fill();
-    }
-    requestAnimationFrame(animMenu);
-  }
-  animMenu();
+      function vis(wx, wy, m) {
+        return (
+          wx > cam.x - m &&
+          wx < cam.x + canvas.width + m &&
+          wy > cam.y - m &&
+          wy < cam.y + canvas.height + m
+        );
+      }
 
-  // Input
-  window.addEventListener('keydown',e=>{
-    keys[e.key.toLowerCase()]=true;
-    if(e.key==='Escape'){
-      if(shopOpen){closeShop();return;}
-    }
-    if(e.key.toLowerCase()==='e'&&!shopOpen&&myFaction){
-      socket.emit('interact');
-    }
-  });
-  window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+      // ======================== INTERPOLATION ========================
+      const interpBuffer = new Map();
+      const INTERP_DELAY = 100;
 
-  canvas.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
-  canvas.addEventListener('mousedown',e=>{if(e.button===0){mouseDown=true;e.preventDefault();}});
-  canvas.addEventListener('mouseup',e=>{if(e.button===0) mouseDown=false;});
-  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+      function storeState(state) {
+        const now = performance.now();
+        for (const s of state.ships) {
+          if (!interpBuffer.has(s.id)) interpBuffer.set(s.id, []);
+          const buf = interpBuffer.get(s.id);
+          buf.push({
+            time: now,
+            x: s.x,
+            y: s.y,
+            angle: s.angle,
+            hp: s.hp,
+            maxHp: s.maxHp,
+            faction: s.faction,
+            sz: s.sz,
+            typeKey: s.typeKey,
+            state: s.state,
+            slowed: s.slowed,
+            boardProgress: s.boardProgress,
+            name: s.name,
+            status: s.status,
+            isPlayer: s.isPlayer,
+            ownerId: s.ownerId,
+            alive: s.alive,
+            stunTimer: s.stunTimer || 0,
+          });
+          while (buf.length > 10) buf.shift();
+        }
+        // Clean old entries
+        for (const [id, buf] of interpBuffer) {
+          if (!state.ships.find((s) => s.id === id)) interpBuffer.delete(id);
+        }
+      }
 
-  // Faction cards
-  document.querySelectorAll('.faction-card').forEach(card=>{
-    card.addEventListener('click',()=>{
-      document.querySelectorAll('.faction-card').forEach(c=>c.classList.remove('selected'));
-      card.classList.add('selected');selectedFaction=card.dataset.faction;
-      const btn=document.getElementById('deploy-btn');btn.classList.add('ready');btn.textContent='DEPLOY';
-    });
-  });
+      function getInterpShip(id) {
+        const buf = interpBuffer.get(id);
+        if (!buf || buf.length < 2) return buf ? buf[buf.length - 1] : null;
+        const renderTime = performance.now() - INTERP_DELAY;
+        let i = 0;
+        while (i < buf.length - 1 && buf[i + 1].time <= renderTime) i++;
+        if (i >= buf.length - 1) return buf[buf.length - 1];
+        const a = buf[i],
+          b = buf[i + 1];
+        const t = Math.min(1, (renderTime - a.time) / (b.time - a.time));
+        return {
+          ...b,
+          x: lerp(a.x, b.x, t),
+          y: lerp(a.y, b.y, t),
+          angle: lerpAng(a.angle, b.angle, t),
+          hp: lerp(a.hp, b.hp, t),
+        };
+      }
 
-  document.getElementById('deploy-btn').addEventListener('click',()=>{
-    if(!selectedFaction||!connected) return;
-    myName=document.getElementById('name-input').value.trim()||'Anon';
-    myFaction=selectedFaction;
-    socket.emit('join',{faction:selectedFaction,name:myName});
-  });
+      // ======================== SOCKET ========================
+      function connectSocket() {
+        socket = io();
+        socket.on("connect", () => {
+          connected = true;
+          document.getElementById("menu-online").textContent =
+            "CONNECTED — MULTIPLAYER";
+          document.getElementById("menu-online").style.color = "#27ae60";
+        });
+        socket.on("disconnect", () => {
+          connected = false;
+          document.getElementById("menu-online").textContent = "DISCONNECTED";
+          document.getElementById("menu-online").style.color = "#e74c3c";
+        });
+        socket.on("full", () => {
+          document.getElementById("menu-online").textContent =
+            "SERVER FULL — TRY AGAIN";
+          document.getElementById("menu-online").style.color = "#f39c12";
+        });
+        socket.on("joined", (data) => {
+          myFaction = data.faction;
+          myShipId = data.shipId;
+          document.getElementById("menu-screen").style.display = "none";
+          document.getElementById("game-screen").style.display = "block";
+          document.getElementById("gameover-screen").style.display = "none";
+          document.getElementById("faction-name").textContent =
+            data.faction === "navy"
+              ? "EU NAVFORCE"
+              : data.faction === "shipping"
+                ? "MARITIME CARGO"
+                : "PIRATE CREW";
+          document.getElementById("faction-dot").className =
+            "faction-dot " +
+            (data.faction === "navy"
+              ? "navy"
+              : data.faction === "shipping"
+                ? "ship"
+                : "pirate");
+          if (data.faction === "pirate") {
+            document.getElementById("loot-label").style.display = "block";
+            document.getElementById("loot-bar-wrap").style.display = "block";
+          }
+        });
 
-  document.getElementById('shop-close').addEventListener('click',closeShop);
+        socket.on("state", (data) => {
+          prevState = gameState;
+          gameState = data;
+          storeState(data);
+          updateHUD(data.self);
+          updateMessages(data.messages);
+          updateLeaderboard(data.leaderboard);
+          document.getElementById("players-count").textContent =
+            (data.leaderboard?.length || 0) + " ONLINE";
+        });
 
-  document.getElementById('restart-btn').addEventListener('click',()=>{
-    document.getElementById('gameover-screen').style.display='none';
-    document.getElementById('menu-screen').style.display='flex';
-    document.getElementById('game-screen').style.display='none';
-    document.getElementById('drunk-overlay').style.display='none';
-    document.getElementById('drunk-hud').style.display='none';
-    gameState=null;prevState=null;interpBuffer.clear();
-    myFaction=null;myShipId=null;
-    selectedFaction=null;
-    document.querySelectorAll('.faction-card').forEach(c=>c.classList.remove('selected'));
-    const btn=document.getElementById('deploy-btn');btn.classList.remove('ready');btn.textContent='SELECT A FACTION';
-  });
+        socket.on("shopOpen", (data) => {
+          renderShop(data);
+          shopOpen = true;
+          currentShopPort = data.portKey;
+        });
 
-  connectSocket();
-  requestAnimationFrame(render);
-}
+        socket.on("gameOver", (stats) => {
+          document.getElementById("game-screen").style.display = "none";
+          document.getElementById("shop-panel").style.display = "none";
+          document.getElementById("gameover-screen").style.display = "flex";
+          document.getElementById("go-title").textContent = stats.title;
+          document.getElementById("go-sub").textContent = stats.sub;
+          const s = document.getElementById("go-stats");
+          s.innerHTML = "";
+          if (stats.intercepts !== undefined)
+            s.innerHTML +=
+              "<div>Intercepts<span>" + stats.intercepts + "</span></div>";
+          if (stats.score !== undefined)
+            s.innerHTML +=
+              "<div>Final Score<span>" + fmt$(stats.score) + "</span></div>";
+          if (stats.money !== undefined)
+            s.innerHTML +=
+              "<div>Total Earnings<span>" + fmt$(stats.money) + "</span></div>";
+          if (stats.deliveries !== undefined)
+            s.innerHTML +=
+              "<div>Deliveries<span>" + stats.deliveries + "</span></div>";
+          if (stats.shipsSeized !== undefined)
+            s.innerHTML +=
+              "<div>Ships Seized<span>" + stats.shipsSeized + "</span></div>";
+          shopOpen = false;
+        });
+      }
 
-window.addEventListener('load',init);
-</script>
-</body>
+      // ======================== INPUT ========================
+      function sendInput() {
+        if (!socket || !myFaction || !gameState) return;
+        let shootAngle = 0;
+        if (gameState.self && gameState.self.x !== undefined) {
+          const shipSX = gameState.self.x - cam.x;
+          const shipSY = gameState.self.y - cam.y;
+          shootAngle = Math.atan2(mouseY - shipSY, mouseX - shipSX);
+        }
+        socket.volatile.emit("input", {
+          w: !!keys["w"] || !!keys["arrowup"],
+          a: !!keys["a"] || !!keys["arrowleft"],
+          s: !!keys["s"] || !!keys["arrowdown"],
+          d: !!keys["d"] || !!keys["arrowright"],
+          space: !!keys[" "],
+          shoot: mouseDown,
+          mouseAngle: shootAngle,
+        });
+      }
+
+      // ======================== HUD ========================
+      function updateHUD(self) {
+        if (!self) return;
+        document.getElementById("hp-bar").style.width =
+          (self.hp / self.maxHp) * 100 + "%";
+        if (myFaction === "pirate") {
+          document.getElementById("drunk-overlay").style.display =
+            self.drunk > 0 ? "block" : "none";
+          document.getElementById("drunk-hud").style.display =
+            self.drunk > 0 ? "block" : "none";
+          if (self.drunk > 0)
+            document.getElementById("drunk-hud").textContent =
+              "DRUNK " + Math.ceil(self.drunk) + "s";
+        }
+        if (myFaction === "navy") {
+          document.getElementById("fuel-bar").style.width = self.fuel + "%";
+          document.getElementById("resource-label").textContent = "FUEL";
+          document.getElementById("credits-display").textContent = fmt$(
+            self.score,
+          );
+          document.getElementById("loot-label").style.display = "none";
+          document.getElementById("loot-bar-wrap").style.display = "none";
+          document.getElementById("threat-label").textContent = "INTERCEPTS";
+          document.getElementById("threat-display").textContent =
+            self.intercepts;
+          document.getElementById("threat-display").style.color = "#3498db";
+        } else if (myFaction === "shipping") {
+          document.getElementById("fuel-bar").style.width =
+            Math.min(100, self.money / 100) + "%";
+          document.getElementById("resource-label").textContent = "BALANCE";
+          document.getElementById("credits-display").textContent = fmt$(
+            self.money,
+          );
+          document.getElementById("loot-label").style.display = "none";
+          document.getElementById("loot-bar-wrap").style.display = "none";
+          document.getElementById("threat-label").textContent = "DELIVERIES";
+          document.getElementById("threat-display").textContent =
+            self.deliveries;
+          document.getElementById("threat-display").style.color = "#27ae60";
+        } else if (myFaction === "pirate") {
+          document.getElementById("fuel-bar").style.width =
+            (self.loot / self.maxLoot) * 100 + "%";
+          document.getElementById("resource-label").textContent = "LOOT HOLD";
+          document.getElementById("credits-display").textContent = fmt$(
+            self.money,
+          );
+          document.getElementById("loot-label").style.display = "block";
+          document.getElementById("loot-bar-wrap").style.display = "block";
+          document.getElementById("loot-bar").style.width =
+            (self.loot / self.maxLoot) * 100 + "%";
+          document.getElementById("threat-label").textContent = "THREAT LEVEL";
+          document.getElementById("threat-display").textContent = "LOW";
+          document.getElementById("threat-display").style.color = "#27ae60";
+        }
+        document.getElementById("slow-indicator").style.display = self.slowed
+          ? "block"
+          : "none";
+        document.getElementById("safe-zone-hud").style.display = self.inSafePort
+          ? "block"
+          : "none";
+        const weaponEl = document.getElementById("weapon-hud");
+        const WNAMES = {
+          cannon: "Cannon",
+          rapidfire: "Rapid Fire",
+          heavy: "Heavy Cannon",
+          railgun: "Railgun",
+          rocket: "Rockets",
+          deckgun: "Deck Gun",
+          autocannon: "Auto Cannon",
+          turret: "Heavy Turret",
+        };
+        if (self.weaponDamage > 0) {
+          weaponEl.style.display = "block";
+          weaponEl.textContent =
+            (WNAMES[self.weaponType] || "Weapon") +
+            " — DMG:" +
+            self.weaponDamage;
+          weaponEl.className = mouseDown ? "weapon-cooldown" : "weapon-ready";
+        } else if (myFaction === "shipping") {
+          weaponEl.style.display = "block";
+          weaponEl.textContent = "NO WEAPON — BUY AT PORT";
+        } else {
+          weaponEl.style.display = "none";
+        }
+
+        if (self.boardState !== null && self.boardState !== undefined) {
+          const pr = document.getElementById("interact-prompt");
+          pr.style.display = "block";
+          pr.textContent =
+            (myFaction === "pirate" ? "BOARDING... " : "INTERCEPTING... ") +
+            Math.floor(self.boardState * 100) +
+            "%";
+        }
+
+        if (myFaction === "shipping" && self.contract) {
+          const c = self.contract;
+          const dest = PORTS[c.to];
+          if (dest && self.x && self.y) {
+            const d = Math.floor(
+              Math.sqrt((self.x - dest.x) ** 2 + (self.y - dest.y) ** 2),
+            );
+            document.getElementById("ch-cargo").textContent = c.cargo;
+            document.getElementById("ch-dest").textContent =
+              "\u2192 " + dest.name;
+            document.getElementById("ch-reward").textContent =
+              "+ " + fmt$(c.reward);
+            document.getElementById("ch-dist").textContent = d + "km away";
+            document.getElementById("contract-hud").style.display = "block";
+          }
+        } else {
+          document.getElementById("contract-hud").style.display = "none";
+        }
+      }
+
+      function updateMessages(msgs) {
+        if (!msgs) return;
+        const log = document.getElementById("msg-log");
+        const key = JSON.stringify(msgs);
+        if (key === lastMessages) return;
+        lastMessages = key;
+        log.innerHTML = "";
+        msgs.forEach((m) => {
+          const el = document.createElement("div");
+          el.className = "msg " + m.type;
+          el.textContent = m.text;
+          log.appendChild(el);
+        });
+      }
+
+      function updateLeaderboard(lb) {
+        if (!lb) return;
+        const rows = document.getElementById("lb-rows");
+        rows.innerHTML = "";
+        lb.forEach((e, i) => {
+          const fc =
+            e.faction === "navy"
+              ? "#3498db"
+              : e.faction === "pirate"
+                ? "#e74c3c"
+                : "#27ae60";
+          rows.innerHTML +=
+            '<div class="lb-row"><span class="lb-name" style="color:' +
+            fc +
+            '">' +
+            (i + 1) +
+            ". " +
+            e.name +
+            '</span><span class="lb-score" style="color:' +
+            fc +
+            '">' +
+            fmt$(e.score) +
+            "</span></div>";
+        });
+      }
+
+      // ======================== SHOP ========================
+      function renderShop(data) {
+        const panel = document.getElementById("shop-panel");
+        let html = "<h3>" + data.portName + "</h3>";
+        for (const sec of data.sections) {
+          html += '<div class="shop-section-title">' + sec.title + "</div>";
+          for (const item of sec.items) {
+            html +=
+              '<div class="shop-item"><div class="si-info"><div class="si-name">' +
+              (item.name || "") +
+              "</div>";
+            if (item.desc)
+              html += '<div class="si-desc">' + item.desc + "</div>";
+            html += "</div>";
+            if (item.marketState) {
+              const sc =
+                item.marketState === "LOCKDOWN"
+                  ? "market-lock"
+                  : item.marketState === "HIGH_RISK"
+                    ? "market-risk"
+                    : "market-open";
+              html +=
+                '<div class="market-badge ' +
+                sc +
+                '">' +
+                item.marketState +
+                "</div>";
+            }
+            if (item.action) {
+              const canBuy = item.canBuy !== false;
+              const btnClass =
+                item.action === "deliver"
+                  ? "deliver-btn " + (canBuy ? "can-buy" : "cant-buy")
+                  : canBuy
+                    ? "can-buy"
+                    : "cant-buy";
+              const label =
+                item.action === "deliver"
+                  ? "DELIVER +" + fmt$(item.reward)
+                  : item.action === "pickup"
+                    ? "ACCEPT"
+                    : item.action === "sellall"
+                      ? item.canBuy
+                        ? fmt$(item.reward || 0)
+                        : "CLOSED"
+                      : item.scoreCost
+                        ? fmt$(item.scoreCost) + " PTS"
+                        : item.cost
+                          ? fmt$(item.cost)
+                          : "FREE";
+              let dataAttrs =
+                'data-action="' +
+                item.action +
+                '" data-port="' +
+                data.portKey +
+                '"';
+              if (item.id) dataAttrs += ' data-id="' + item.id + '"';
+              if (item.cargo) dataAttrs += ' data-cargo="' + item.cargo + '"';
+              if (item.to) dataAttrs += ' data-to="' + item.to + '"';
+              if (item.reward)
+                dataAttrs += ' data-reward="' + item.reward + '"';
+              html +=
+                '<button class="si-btn ' +
+                btnClass +
+                '" ' +
+                (canBuy ? "" : "disabled") +
+                " " +
+                dataAttrs +
+                ">" +
+                label +
+                "</button>";
+            }
+            if (item.inTransit)
+              html +=
+                '<span style="color:#e74c3c;font-size:10px;padding:0 9px">IN TRANSIT</span>';
+            html += "</div>";
+          }
+        }
+        document.getElementById("shop-content").innerHTML = html;
+        panel.style.display = "block";
+        panel.querySelectorAll("[data-action]").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const d = this.dataset;
+            socket.emit("shopAction", {
+              action: d.action,
+              portKey: d.port,
+              id: d.id,
+              cargo: d.cargo,
+              to: d.to,
+              reward: d.reward ? parseInt(d.reward) : 0,
+            });
+            if (
+              d.action === "buyrum" ||
+              d.action === "deliver" ||
+              d.action === "refuel"
+            )
+              closeShop();
+          });
+        });
+      }
+
+      function closeShop() {
+        document.getElementById("shop-panel").style.display = "none";
+        shopOpen = false;
+        currentShopPort = null;
+      }
+
+      // ======================== RENDERING ========================
+      function render(ts) {
+        requestAnimationFrame(render);
+        if (!gameState || !canvas) return;
+
+        const dt = (ts - lastRender) / 1000;
+        lastRender = ts;
+
+        // FPS counter
+        fpsFrames++;
+        fpsTime += dt;
+        if (fpsTime >= 0.5) {
+          fpsDisplay = Math.round(fpsFrames / fpsTime);
+          fpsFrames = 0;
+          fpsTime = 0;
+          const fpsEl = document.getElementById("fps-counter");
+          if (settings.showFps) {
+            fpsEl.style.display = "block";
+            fpsEl.textContent = fpsDisplay + " FPS";
+          } else fpsEl.style.display = "none";
+        }
+
+        // Camera follows own ship
+        if (gameState.self && gameState.self.x !== undefined) {
+            cam.x = lerp(cam.x, gameState.self.x - canvas.width / 2, 0.12);
+            cam.y = lerp(cam.y, gameState.self.y - canvas.height / 2, 0.12);
+          cam.x = Math.max(0, Math.min(WW - canvas.width, cam.x));
+          cam.y = Math.max(0, Math.min(WH - canvas.height, cam.y));
+        }
+
+        ctx.fillStyle = "#0a1628";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Water waves
+        const gt = gameState.time || 0;
+        for (let i = 0; i < 10; i++) {
+          ctx.strokeStyle = "rgba(15,45,90," + (0.06 + i * 0.008) + ")";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          const baseY =
+            ((cam.y * 0.3 + i * 90 + gt * 8) % (canvas.height + 200)) - 100;
+          for (let x = 0; x < canvas.width; x += 10) {
+            const y =
+              baseY +
+              Math.sin((x + cam.x) * 0.007 + gt * 0.4 + i * 0.7) * 18 +
+              Math.sin((x + cam.x) * 0.013 + gt * 0.25) * 10;
+            x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+        // Grid
+        if (settings.showGrid) {
+          ctx.strokeStyle = "rgba(25,50,80,0.25)";
+          ctx.lineWidth = 1;
+          const gs = 120;
+          const gsx = Math.floor(cam.x / gs) * gs,
+            gsy = Math.floor(cam.y / gs) * gs;
+          for (let x = gsx; x < cam.x + canvas.width + gs; x += gs) {
+            const s = w2s(x, 0);
+            ctx.beginPath();
+            ctx.moveTo(s.x, 0);
+            ctx.lineTo(s.x, canvas.height);
+            ctx.stroke();
+          }
+          for (let y = gsy; y < cam.y + canvas.height + gs; y += gs) {
+            const s = w2s(0, y);
+            ctx.beginPath();
+            ctx.moveTo(0, s.y);
+            ctx.lineTo(canvas.width, s.y);
+            ctx.stroke();
+          }
+        }
+
+        // Land
+        ctx.fillStyle = "#1c2d40";
+        drawPoly(ctx, LAND_YEMEN);
+        drawPoly(ctx, LAND_SOMALIA);
+        ctx.fillStyle = "#3d3520";
+        ISLAND_POLYS.forEach((p) => drawPoly(ctx, p));
+        ctx.strokeStyle = "rgba(60,90,120,0.4)";
+        ctx.lineWidth = 2;
+        drawPolyBorder(ctx, LAND_YEMEN);
+        drawPolyBorder(ctx, LAND_SOMALIA);
+        ctx.strokeStyle = "rgba(120,100,50,0.3)";
+        ctx.lineWidth = 1;
+        ISLAND_POLYS.forEach((p) => drawPolyBorder(ctx, p));
+
+        // Lanes
+        ctx.strokeStyle = "rgba(80,160,220,0.15)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([12, 6]);
+        LANES.forEach((l) => {
+          ctx.beginPath();
+          l.wp.forEach((p, i) => {
+            const s = w2s(p[0], p[1]);
+            i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y);
+          });
+          ctx.stroke();
+        });
+        ctx.setLineDash([]);
+
+        // Ports
+        for (const [key, port] of Object.entries(PORTS)) {
+          if (!vis(port.x, port.y, 100)) continue;
+          const p = w2s(port.x, port.y);
+          ctx.fillStyle =
+            port.f === "pirate"
+              ? "rgba(231,76,60,0.08)"
+              : port.f === "navy"
+                ? "rgba(52,152,219,0.08)"
+                : port.f === "island"
+                  ? "rgba(180,150,60,0.1)"
+                  : "rgba(150,150,150,0.06)";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, DOCK_RANGE, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle =
+            port.f === "pirate"
+              ? "rgba(231,76,60,0.25)"
+              : port.f === "navy"
+                ? "rgba(52,152,219,0.25)"
+                : port.f === "island"
+                  ? "rgba(180,150,60,0.3)"
+                  : "rgba(150,150,150,0.15)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle =
+            port.f === "pirate"
+              ? "#e74c3c"
+              : port.f === "navy"
+                ? "#3498db"
+                : port.f === "island"
+                  ? "#d4a017"
+                  : "#95a5a6";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#0a1628";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#c0c8d0";
+          ctx.font = "600 11px Rajdhani";
+          ctx.textAlign = "center";
+          ctx.fillText(port.name, p.x, p.y + 20);
+          if (port.f === "island") {
+            ctx.fillStyle = "#d4a01780";
+            ctx.font = "9px Rajdhani";
+            ctx.fillText("ISLAND", p.x, p.y + 32);
+          }
+          if (
+            myFaction === "shipping" &&
+            gameState.self?.contract &&
+            gameState.self.contract.to === key
+          ) {
+            ctx.strokeStyle = "#f39c12";
+            ctx.lineWidth = 2;
+            const pulse = Math.sin(gt * 3) * 4 + DOCK_RANGE + 10;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, pulse, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = "#f39c12";
+            ctx.font = "bold 10px Rajdhani";
+            ctx.fillText("DELIVER HERE", p.x, p.y - DOCK_RANGE - 8);
+          }
+        }
+
+        // Ships (with interpolation)
+        if (gameState.ships) {
+          for (const ship of gameState.ships) {
+            const s = getInterpShip(ship.id) || ship;
+            if (!vis(s.x, s.y, s.sz * 4)) continue;
+            drawShip(s, ship.ownerId === socket.id);
+          }
+        }
+
+        // Projectiles
+        if (gameState.projectiles) {
+          for (const p of gameState.projectiles) {
+            const s = w2s(p.x, p.y);
+            const fc =
+              p.faction === "navy"
+                ? "#5dade2"
+                : p.faction === "pirate"
+                  ? "#e74c3c"
+                  : "#f39c12";
+            const wt = p.wt || "cannon";
+            if (wt === "railgun") {
+              ctx.strokeStyle = fc;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(s.x, s.y);
+              ctx.lineTo(s.x - p.vx * 6, s.y - p.vy * 6);
+              ctx.stroke();
+              ctx.fillStyle = "#fff";
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = fc + "40";
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 8, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (wt === "rocket") {
+              ctx.fillStyle = "#ff6600";
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "#ffaa0060";
+              ctx.beginPath();
+              ctx.arc(s.x - p.vx * 2, s.y - p.vy * 2, 6, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "#ff440030";
+              ctx.beginPath();
+              ctx.arc(s.x - p.vx * 4, s.y - p.vy * 4, 8, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (wt === "rapidfire" || wt === "autocannon") {
+              ctx.fillStyle = fc;
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = fc + "80";
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(s.x, s.y);
+              ctx.lineTo(s.x - p.vx * 2, s.y - p.vy * 2);
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = fc;
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = fc + "60";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(s.x, s.y);
+              ctx.lineTo(s.x - p.vx * 3, s.y - p.vy * 3);
+              ctx.stroke();
+              ctx.fillStyle = fc + "30";
+              ctx.beginPath();
+              ctx.arc(s.x, s.y, 6, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+
+        // Interaction prompts
+        const prompt = document.getElementById("interact-prompt");
+        if (gameState.self && gameState.self.boardState === null) {
+          let show = false;
+          for (const [key, port] of Object.entries(PORTS)) {
+            if (
+              gameState.self.x &&
+              dist(gameState.self, port) < DOCK_RANGE + 15
+            ) {
+              prompt.textContent = "[E] DOCK AT " + port.name.toUpperCase();
+              show = true;
+              break;
+            }
+          }
+          if (!show) prompt.style.display = "none";
+          else prompt.style.display = "block";
+        }
+
+        // Crosshair line from ship to mouse cursor
+        if (
+          gameState.self &&
+          gameState.self.weaponDamage > 0 &&
+          gameState.self.alive &&
+          gameState.self.x !== undefined
+        ) {
+          const shipSX = gameState.self.x - cam.x;
+          const shipSY = gameState.self.y - cam.y;
+          const a = Math.atan2(mouseY - shipSY, mouseX - shipSX);
+          const lineLen = Math.min(
+            120,
+            Math.sqrt((mouseX - shipSX) ** 2 + (mouseY - shipSY) ** 2),
+          );
+          ctx.strokeStyle = "rgba(255,255,255,0.1)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 8]);
+          ctx.beginPath();
+          ctx.moveTo(shipSX, shipSY);
+          ctx.lineTo(
+            shipSX + Math.cos(a) * lineLen,
+            shipSY + Math.sin(a) * lineLen,
+          );
+          ctx.stroke();
+          ctx.setLineDash([]);
+          // Crosshair dot at mouse
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.beginPath();
+          ctx.arc(mouseX, mouseY, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.25)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(mouseX, mouseY, 8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        renderMinimap();
+        sendInput();
+      }
+
+      function drawShip(s, isMe) {
+        const sc = w2s(s.x, s.y);
+        let colors = SHIP_COLORS[s.typeKey] || { clr: "#888", bclr: "#555" };
+        if (s.cosmetic && s.isPlayer) {
+          colors = { clr: s.cosmetic, bclr: s.cosmetic + "cc" };
+        }
+        if (isMe && selectedCosmetic) {
+          colors = { clr: selectedCosmetic, bclr: selectedCosmetic + "cc" };
+        }
+        ctx.save();
+        ctx.translate(sc.x, sc.y);
+        ctx.rotate(s.angle);
+        ctx.fillStyle = colors.bclr;
+        ctx.beginPath();
+        ctx.moveTo(-s.sz, 0);
+        ctx.lineTo(s.sz * 0.6, -s.sz * 0.55);
+        ctx.lineTo(s.sz * 1.1, 0);
+        ctx.lineTo(s.sz * 0.6, s.sz * 0.55);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = colors.clr;
+        ctx.fillRect(-s.sz * 0.25, -s.sz * 0.28, s.sz * 0.85, s.sz * 0.56);
+        const fc =
+          s.faction === "navy"
+            ? "#3498db"
+            : s.faction === "pirate"
+              ? "#e74c3c"
+              : s.faction === "ship"
+                ? "#27ae60"
+                : "#888";
+        ctx.fillStyle = fc;
+        ctx.beginPath();
+        ctx.arc(0, 0, s.sz * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        if (isMe) {
+          ctx.strokeStyle = "rgba(255,255,255,0.8)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, s.sz * 0.5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        if (s.isPlayer && !isMe) {
+          ctx.strokeStyle = fc + "80";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, s.sz * 0.5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        if (s.state === "boarding" && s.boardProgress > 0) {
+          ctx.strokeStyle = "rgba(255,255,255,0.9)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(
+            0,
+            0,
+            s.sz * 0.8,
+            -Math.PI / 2,
+            -Math.PI / 2 + Math.PI * 2 * s.boardProgress,
+          );
+          ctx.stroke();
+        }
+        // Stun indicator
+        if (s.stunTimer > 0) {
+          ctx.strokeStyle = "rgba(243,156,18,0.7)";
+          ctx.lineWidth = 2;
+          const pulse = Math.sin(performance.now() * 0.01) * 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, s.sz + 4 + pulse, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // HP bar
+        if (!isMe && s.hp < s.maxHp) {
+          const bx = sc.x - s.sz,
+            by = sc.y - s.sz - 10;
+          ctx.fillStyle = "rgba(0,0,0,0.7)";
+          ctx.fillRect(bx, by, s.sz * 2, 4);
+          ctx.fillStyle =
+            s.hp / s.maxHp > 0.5
+              ? "#27ae60"
+              : s.hp / s.maxHp > 0.2
+                ? "#f39c12"
+                : "#e74c3c";
+          ctx.fillRect(bx, by, s.sz * 2 * (s.hp / s.maxHp), 4);
+        }
+        if (s.slowed && !isMe) {
+          ctx.fillStyle = "rgba(231,76,60,0.7)";
+          ctx.font = "bold 9px Rajdhani";
+          ctx.textAlign = "center";
+          ctx.fillText("SLOWED", sc.x, sc.y - s.sz - 14);
+        }
+        if (s.stunTimer > 0) {
+          ctx.fillStyle = "rgba(243,156,18,0.9)";
+          ctx.font = "bold 9px Rajdhani";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "STUNNED",
+            sc.x,
+            sc.y - s.sz - (s.hp < s.maxHp ? 20 : 14),
+          );
+        }
+        // Name tag
+        if (
+          settings.showNames &&
+          s.name &&
+          gameState.self &&
+          gameState.self.x
+        ) {
+          const d = Math.sqrt(
+            (gameState.self.x - s.x) ** 2 + (gameState.self.y - s.y) ** 2,
+          );
+          if (d < 180 || s.isPlayer) {
+            const label = s.name;
+            ctx.font = "10px Rajdhani";
+            ctx.textAlign = "center";
+            const tw = ctx.measureText(label).width + 12;
+            const ny = sc.y - s.sz - 22 - (s.stunTimer > 0 ? 6 : 0);
+            ctx.fillStyle = "rgba(8,15,25,0.9)";
+            ctx.fillRect(sc.x - tw / 2, ny - 10, tw, 20);
+            ctx.strokeStyle = "rgba(255,255,255,0.1)";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(sc.x - tw / 2, ny - 10, tw, 20);
+            ctx.fillStyle = s.isPlayer ? fc : "#ecf0f1";
+            ctx.fillText(label, sc.x, ny + 4);
+          }
+        }
+      }
+
+      function drawPoly(ctx, poly) {
+        ctx.beginPath();
+        poly.forEach((p, i) => {
+          const s = w2s(p[0], p[1]);
+          i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y);
+        });
+        ctx.closePath();
+        ctx.fill();
+      }
+      function drawPolyBorder(ctx, poly) {
+        ctx.beginPath();
+        poly.forEach((p, i) => {
+          const s = w2s(p[0], p[1]);
+          i === 0 ? ctx.moveTo(s.x, s.y) : ctx.lineTo(s.x, s.y);
+        });
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      function renderMinimap() {
+        const mw = mcanvas.width,
+          mh = mcanvas.height;
+        mctx.fillStyle = "#0a1628";
+        mctx.fillRect(0, 0, mw, mh);
+        const sx = mw / WW,
+          sy = mh / WH;
+        mctx.fillStyle = "#1c2d40";
+        drawMiniPoly(mctx, LAND_SOMALIA, sx, sy);
+        drawMiniPoly(mctx, LAND_YEMEN, sx, sy);
+        mctx.fillStyle = "#3d3520";
+        ISLAND_POLYS.forEach((p) => drawMiniPoly(mctx, p, sx, sy));
+        mctx.strokeStyle = "rgba(80,160,220,0.2)";
+        mctx.lineWidth = 1;
+        LANES.forEach((l) => {
+          mctx.beginPath();
+          l.wp.forEach((p, i) => {
+            i === 0
+              ? mctx.moveTo(p[0] * sx, p[1] * sy)
+              : mctx.lineTo(p[0] * sx, p[1] * sy);
+          });
+          mctx.stroke();
+        });
+        for (const [key, p] of Object.entries(PORTS)) {
+          mctx.fillStyle =
+            p.f === "pirate"
+              ? "#e74c3c"
+              : p.f === "navy"
+                ? "#3498db"
+                : p.f === "island"
+                  ? "#d4a017"
+                  : "#95a5a6";
+          mctx.beginPath();
+          mctx.arc(p.x * sx, p.y * sy, 2.5, 0, Math.PI * 2);
+          mctx.fill();
+          if (
+            myFaction === "shipping" &&
+            gameState?.self?.contract &&
+            gameState.self.contract.to === key
+          ) {
+            mctx.strokeStyle = "#f39c12";
+            mctx.lineWidth = 1;
+            mctx.beginPath();
+            mctx.arc(
+              p.x * sx,
+              p.y * sy,
+              4 + Math.sin((gameState.time || 0) * 4) * 2,
+              0,
+              Math.PI * 2,
+            );
+            mctx.stroke();
+          }
+        }
+        if (gameState?.ships) {
+          for (const s of gameState.ships) {
+            if (!s.alive && s.alive !== undefined) continue;
+            const mx = s.x * sx,
+              my = s.y * sy;
+            if (mx < -5 || mx > mw + 5 || my < -5 || my > mh + 5) continue;
+            mctx.fillStyle =
+              s.faction === "navy"
+                ? "#3498db"
+                : s.faction === "pirate"
+                  ? "#e74c3c"
+                  : s.faction === "ship"
+                    ? "#27ae60"
+                    : "#888";
+            if (s.ownerId === socket?.id) {
+              mctx.strokeStyle = "#fff";
+              mctx.lineWidth = 1;
+              mctx.beginPath();
+              mctx.arc(mx, my, 3.5, 0, Math.PI * 2);
+              mctx.fill();
+              mctx.stroke();
+            } else if (s.isPlayer) {
+              mctx.strokeStyle = mctx.fillStyle;
+              mctx.lineWidth = 1;
+              mctx.beginPath();
+              mctx.arc(mx, my, 2.5, 0, Math.PI * 2);
+              mctx.fill();
+              mctx.stroke();
+            } else {
+              mctx.beginPath();
+              mctx.arc(mx, my, 1.5, 0, Math.PI * 2);
+              mctx.fill();
+            }
+          }
+        }
+        const vx = cam.x * sx,
+          vy = cam.y * sy,
+          vw = canvas.width * sx,
+          vh = canvas.height * sy;
+        mctx.strokeStyle = "rgba(255,255,255,0.35)";
+        mctx.lineWidth = 1;
+        mctx.strokeRect(vx, vy, vw, vh);
+      }
+
+      function drawMiniPoly(ctx, poly, sx, sy) {
+        ctx.beginPath();
+        poly.forEach((p, i) => {
+          i === 0
+            ? ctx.moveTo(p[0] * sx, p[1] * sy)
+            : ctx.lineTo(p[0] * sx, p[1] * sy);
+        });
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // ======================== INIT ========================
+      function init() {
+        canvas = document.getElementById("game-canvas");
+        ctx = canvas.getContext("2d");
+        mcanvas = document.getElementById("minimap");
+        mctx = mcanvas.getContext("2d");
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resize);
+        resize();
+
+        // Menu background
+        const mc = document.getElementById("menu-bg");
+        const mc2 = mc.getContext("2d");
+        function resizeMenu() {
+          mc.width = window.innerWidth;
+          mc.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeMenu);
+        resizeMenu();
+        let mt = 0;
+        function animMenu() {
+          mt += 0.01;
+          mc2.fillStyle = "#060e1a";
+          mc2.fillRect(0, 0, mc.width, mc.height);
+          mc2.strokeStyle = "rgba(52,152,219,0.12)";
+          mc2.lineWidth = 2;
+          for (let i = 0; i < 6; i++) {
+            mc2.beginPath();
+            for (let x = 0; x < mc.width; x += 12) {
+              const y =
+                mc.height * 0.55 +
+                Math.sin(x * 0.008 + mt + i * 0.8) * 25 +
+                i * 18;
+              x === 0 ? mc2.moveTo(x, y) : mc2.lineTo(x, y);
+            }
+            mc2.stroke();
+          }
+          mc2.fillStyle = "#1c2d40";
+          mc2.beginPath();
+          LAND_YEMEN.forEach((p, i) => {
+            const sx2 = (p[0] / WW) * mc.width,
+              sy2 = (p[1] / WH) * mc.height;
+            i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
+          });
+          mc2.closePath();
+          mc2.fill();
+          mc2.beginPath();
+          LAND_SOMALIA.forEach((p, i) => {
+            const sx2 = (p[0] / WW) * mc.width,
+              sy2 = (p[1] / WH) * mc.height;
+            i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
+          });
+          mc2.closePath();
+          mc2.fill();
+          mc2.fillStyle = "#3d3520";
+          ISLAND_POLYS.forEach((poly) => {
+            mc2.beginPath();
+            poly.forEach((p, i) => {
+              const sx2 = (p[0] / WW) * mc.width,
+                sy2 = (p[1] / WH) * mc.height;
+              i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
+            });
+            mc2.closePath();
+            mc2.fill();
+          });
+          for (const p of Object.values(PORTS)) {
+            mc2.fillStyle =
+              p.f === "pirate"
+                ? "#e74c3c"
+                : p.f === "navy"
+                  ? "#3498db"
+                  : p.f === "island"
+                    ? "#d4a017"
+                    : "#95a5a6";
+            mc2.beginPath();
+            mc2.arc(
+              (p.x / WW) * mc.width,
+              (p.y / WH) * mc.height,
+              4,
+              0,
+              Math.PI * 2,
+            );
+            mc2.fill();
+          }
+          requestAnimationFrame(animMenu);
+        }
+        animMenu();
+
+        // Input
+        window.addEventListener("keydown", (e) => {
+          keys[e.key.toLowerCase()] = true;
+          if (e.key === "Escape") {
+            if (shopOpen) {
+              closeShop();
+              return;
+            }
+            if (settingsOpen) {
+              settingsOpen = false;
+              document.getElementById("settings-panel").style.display = "none";
+              return;
+            }
+          }
+          if (e.key.toLowerCase() === "e" && !shopOpen && myFaction) {
+            socket.emit("interact");
+          }
+        });
+        window.addEventListener("keyup", (e) => {
+          keys[e.key.toLowerCase()] = false;
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        });
+        canvas.addEventListener("mousedown", (e) => {
+          if (e.button === 0) {
+            mouseDown = true;
+            e.preventDefault();
+          }
+        });
+        canvas.addEventListener("mouseup", (e) => {
+          if (e.button === 0) mouseDown = false;
+        });
+        canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+        // Faction cards
+        document.querySelectorAll(".faction-card").forEach((card) => {
+          card.addEventListener("click", () => {
+            document
+              .querySelectorAll(".faction-card")
+              .forEach((c) => c.classList.remove("selected"));
+            card.classList.add("selected");
+            selectedFaction = card.dataset.faction;
+            const btn = document.getElementById("deploy-btn");
+            btn.classList.add("ready");
+            btn.textContent = "DEPLOY";
+          });
+        });
+
+        document.getElementById("deploy-btn").addEventListener("click", () => {
+          if (!selectedFaction || !connected) return;
+          myName = document.getElementById("name-input").value.trim() || "Anon";
+          myFaction = selectedFaction;
+          socket.emit("join", {
+            faction: selectedFaction,
+            name: myName,
+            cosmetic: selectedCosmetic || null,
+          });
+        });
+
+        document.querySelectorAll(".color-swatch").forEach((sw) => {
+          sw.addEventListener("click", () => {
+            document
+              .querySelectorAll(".color-swatch")
+              .forEach((s) => s.classList.remove("selected"));
+            sw.classList.add("selected");
+            selectedCosmetic = sw.dataset.color;
+          });
+        });
+
+        document
+          .getElementById("shop-close")
+          .addEventListener("click", closeShop);
+
+        // Settings
+        document
+          .getElementById("settings-btn")
+          .addEventListener("click", () => {
+            settingsOpen = !settingsOpen;
+            document.getElementById("settings-panel").style.display =
+              settingsOpen ? "block" : "none";
+          });
+        document
+          .getElementById("ui-scale")
+          .addEventListener("input", function () {
+            settings.uiScale = parseFloat(this.value);
+            document.getElementById("ui-scale-val").textContent =
+              settings.uiScale.toFixed(1) + "x";
+            document.documentElement.style.setProperty("--ui-scale", settings.uiScale);
+          });
+        document
+          .getElementById("toggle-fps")
+          .addEventListener("click", function () {
+            settings.showFps = !settings.showFps;
+            this.classList.toggle("on", settings.showFps);
+          });
+        document
+          .getElementById("toggle-names")
+          .addEventListener("click", function () {
+            settings.showNames = !settings.showNames;
+            this.classList.toggle("on", settings.showNames);
+          });
+        document
+          .getElementById("toggle-grid")
+          .addEventListener("click", function () {
+            settings.showGrid = !settings.showGrid;
+            this.classList.toggle("on", settings.showGrid);
+          });
+        document
+          .getElementById("minimap-size")
+          .addEventListener("input", function () {
+            settings.minimapSize = parseInt(this.value);
+            const sizes = [
+              { w: 130, h: 100, label: "Small" },
+              { w: 180, h: 140, label: "Normal" },
+              { w: 260, h: 200, label: "Large" },
+            ];
+            const sz = sizes[settings.minimapSize];
+            mcanvas.width = sz.w;
+            mcanvas.height = sz.h;
+            document.getElementById("minimap-size-val").textContent = sz.label;
+          });
+        document.getElementById("restart-btn").addEventListener("click", () => {
+          document.getElementById("gameover-screen").style.display = "none";
+          document.getElementById("menu-screen").style.display = "flex";
+          document.getElementById("game-screen").style.display = "none";
+          document.getElementById("drunk-overlay").style.display = "none";
+          document.getElementById("drunk-hud").style.display = "none";
+          gameState = null;
+          prevState = null;
+          interpBuffer.clear();
+          myFaction = null;
+          myShipId = null;
+          selectedFaction = null;
+          document
+            .querySelectorAll(".faction-card")
+            .forEach((c) => c.classList.remove("selected"));
+          const btn = document.getElementById("deploy-btn");
+          btn.classList.remove("ready");
+          btn.textContent = "SELECT A FACTION";
+        });
+
+        connectSocket();
+        requestAnimationFrame(render);
+      }
+
+      window.addEventListener("load", init);
+    </script>
+  </body>
 </html>
