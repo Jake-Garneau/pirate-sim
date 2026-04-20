@@ -344,7 +344,7 @@ const WEAPON_TYPES = {
   rapidfire: { name: "Rapid Fire", dmg: 8, spd: 10, cd: 0.25 },
   heavy: { name: "Heavy Cannon", dmg: 22, spd: 6, cd: 0.9 },
   railgun: { name: "Railgun", dmg: 28, spd: 16, cd: 1.5 },
-  rocket: { name: "Rockets", dmg: 35, spd: 4, cd: 2.0 },
+  rocket: { name: "Rockets", dmg: 40, spd: 4, cd: 2.0 },
   deckgun: { name: "Deck Gun", dmg: 10, spd: 7, cd: 0.7 },
   autocannon: { name: "Auto Cannon", dmg: 6, spd: 10, cd: 0.3 },
   turret: { name: "Heavy Turret", dmg: 18, spd: 6, cd: 1.0 },
@@ -618,8 +618,10 @@ const players = new Map();
 const npcs = [];
 const projectiles = [];
 let gameTime = 0;
-const spawnTimers = { merchant: 4, pirate: 6, navy: 7, fishing: 8 };
-const messages = []; // global messages [{text,type,time,targetId?}]
+const spawnTimers = { merchant: 3, pirate: 4, navy: 5, fishing: 8 };
+const messages = [];
+const hitEffects = [];
+const explosions = [];
 
 // ======================== SHIP ========================
 class Ship {
@@ -1355,20 +1357,27 @@ function updatePlayerShip(player, dt) {
   if (s.shootCooldown > 0) s.shootCooldown -= dt;
 
   // Player boarding state allows movement (can break free)
-  if (s.state === "boarding" && s._target && s._target.alive) {
-    const d = dist(s, s._target);
-    if (d > BOARD_RANGE * 2.2) {
+  if (s.state === "boarding") {
+    if (!s._target || !s._target.alive) {
       s.state = "idle";
       s._target = null;
       s._targetId = null;
       s.boardProgress = 0;
-      sendMsg(player.id, "Target escaped range!", "alert");
+      sendMsg(player.id, "Target lost!", "alert");
     } else {
-      const boardTime = player.drunk > 0 ? BOARD_TIME * 1.8 : BOARD_TIME;
-      s.boardProgress += dt / boardTime;
-      if (s.boardProgress >= 1.0) completePlayerBoarding(player);
+      const d = dist(s, s._target);
+      if (d > BOARD_RANGE * 2.2) {
+        s.state = "idle";
+        s._target = null;
+        s._targetId = null;
+        s.boardProgress = 0;
+        sendMsg(player.id, "Target escaped range!", "alert");
+      } else {
+        const boardTime = player.drunk > 0 ? BOARD_TIME * 1.8 : BOARD_TIME;
+        s.boardProgress += dt / boardTime;
+        if (s.boardProgress >= 1.0) completePlayerBoarding(player);
+      }
     }
-    // Still allow movement while boarding (slower)
   }
 
   const inp = player.input;
@@ -1399,19 +1408,9 @@ function updatePlayerShip(player, dt) {
     }
   }
 
-  if (player.faction === "navy" && (ax || ay))
-    player.fuel = Math.max(0, player.fuel - dt * 0.8);
-  if (player.faction === "navy" && player.fuel <= 0)
-    s.maxSpd = Math.min(s.maxSpd, 0.5);
-  if (
-    player.faction === "pirate" &&
-    inp.space &&
-    !s.slowed &&
-    player.drunk <= 0
-  )
-    s.maxSpd = s.baseSpd * 1.4;
-  else if (player.faction === "pirate" && !s.slowed && player.drunk <= 0)
-    s.maxSpd = s.baseSpd;
+  if (ax || ay) player.fuel = Math.max(0, player.fuel - dt * 0.8);
+  if (player.fuel <= 0) s.maxSpd = Math.min(s.maxSpd, s.baseSpd * 0.25);
+  else if (!s.slowed) s.maxSpd = s.baseSpd;
 
   s.vx *= 0.95;
   s.vy *= 0.95;
@@ -1498,10 +1497,38 @@ function updateProjectiles(dt) {
       if (s.faction === p.faction) continue;
       if (isInSafePort(s)) continue;
       if (dist(p, s) < s.sz + 4) {
+        const friendly =
+          (p.faction === "navy" && s.faction === "ship") ||
+          (p.faction === "ship" && s.faction === "navy");
+        if (friendly) {
+          p.alive = false;
+          break;
+        }
+        if (p.weaponType === "rocket") {
+          explosions.push({ x: p.x, y: p.y, r: 40, t: 0.6 });
+          const blastShips = allShips.filter(
+            (bs) => bs.alive && bs.id !== p.ownerId && dist(p, bs) < 50,
+          );
+          for (const bs of blastShips) {
+            if (isInSafePort(bs)) continue;
+            const bsFriendly =
+              (p.faction === "navy" && bs.faction === "ship") ||
+              (p.faction === "ship" && bs.faction === "navy");
+            if (bsFriendly || bs.faction === p.faction) continue;
+            const splashDmg = p.damage * 0.5;
+            bs.damage(splashDmg, p.ownerId);
+            hitEffects.push({
+              x: bs.x,
+              y: bs.y,
+              dmg: Math.round(splashDmg),
+              t: 0.8,
+            });
+          }
+        }
         const killed = s.damage(p.damage, p.ownerId);
+        hitEffects.push({ x: s.x, y: s.y, dmg: Math.round(p.damage), t: 0.8 });
         p.alive = false;
         if (killed) {
-          // Credit the kill to the player who shot
           for (const [pid, pl] of players.entries()) {
             if (pl.ship && pl.ship.id === p.ownerId) {
               if (pl.faction === "navy") {
@@ -1521,7 +1548,6 @@ function updateProjectiles(dt) {
               break;
             }
           }
-          // Check if killed ship belonged to a player
           if (s.ownerId) {
             const victim = players.get(s.ownerId);
             if (victim) sendMsg(victim.id, "Your ship was destroyed!", "alert");
@@ -1531,9 +1557,16 @@ function updateProjectiles(dt) {
       }
     }
   }
-  // Remove dead projectiles
   for (let i = projectiles.length - 1; i >= 0; i--) {
     if (!projectiles[i].alive) projectiles.splice(i, 1);
+  }
+  for (let i = hitEffects.length - 1; i >= 0; i--) {
+    hitEffects[i].t -= dt;
+    if (hitEffects[i].t <= 0) hitEffects.splice(i, 1);
+  }
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    explosions[i].t -= dt;
+    if (explosions[i].t <= 0) explosions.splice(i, 1);
   }
 }
 
@@ -1646,6 +1679,18 @@ function getShopData(player, portKey) {
       repItems.push({ name: "Hull at full integrity", action: null, cost: 0 });
     sections.push({ title: "Repair", items: repItems });
 
+    const fuelItems = [];
+    if (player.fuel < 100) {
+      const fuelCost = Math.floor((100 - player.fuel) * 2);
+      fuelItems.push({
+        name: "Refuel (" + Math.floor(100 - player.fuel) + "%)",
+        action: "refuel",
+        cost: fuelCost,
+        canBuy: player.money >= fuelCost,
+      });
+    } else fuelItems.push({ name: "Fuel at 100%", action: null, cost: 0 });
+    sections.push({ title: "Refuel", items: fuelItems });
+
     const lootItems = [];
     if (player.loot <= 0) {
       lootItems.push({
@@ -1695,8 +1740,8 @@ function getShopData(player, portKey) {
       },
       {
         name: "Bigger Ship",
-        cost: 3000,
-        desc: "+50 HP, +200 hold, larger hull, -0.3 speed",
+        cost: 4000,
+        desc: "+50 HP, +200 hold, +50% gun power, larger hull, -0.3 speed",
         action: "upgrade",
         id: "tier",
         canBuy: player.money >= 3000 && s.shipTier < 2,
@@ -1743,6 +1788,18 @@ function getShopData(player, portKey) {
     } else
       repItems.push({ name: "Hull at full integrity", action: null, cost: 0 });
     sections.push({ title: "Repair", items: repItems });
+
+    const fuelItems = [];
+    if (player.fuel < 100) {
+      const fuelCost = Math.floor((100 - player.fuel) * 1.5);
+      fuelItems.push({
+        name: "Refuel (" + Math.floor(100 - player.fuel) + "%)",
+        action: "refuel",
+        cost: fuelCost,
+        canBuy: player.money >= fuelCost,
+      });
+    } else fuelItems.push({ name: "Fuel at 100%", action: null, cost: 0 });
+    sections.push({ title: "Refuel", items: fuelItems });
 
     // Contract section
     const contractItems = [];
@@ -1813,7 +1870,7 @@ function getShopData(player, portKey) {
       {
         name: "Bigger Ship",
         cost: 5000,
-        desc: "+60 HP, larger hull, -0.2 speed",
+        desc: "+60 HP, +50% gun power, larger hull, -0.2 speed",
         action: "upgrade",
         id: "tier",
         canBuy: player.money >= 5000 && s.shipTier < 2,
@@ -1892,7 +1949,7 @@ function getShopData(player, portKey) {
       {
         name: "Bigger Ship",
         cost: 0,
-        desc: "+80 HP, larger hull, -0.3 speed",
+        desc: "+80 HP, +50% gun power, larger hull, -0.3 speed",
         action: "upgrade",
         id: "tier",
         canBuy: player.score >= 800 && s.shipTier < 2,
@@ -2029,9 +2086,13 @@ function handleShopAction(player, data) {
         s.sz += 3;
         s.baseSpd = Math.max(1.0, s.baseSpd - 0.3);
         s.maxSpd = s.baseSpd;
+        s.weaponDamage = Math.round(s.weaponDamage * 1.5);
+        s.weaponCooldownTime = Math.max(0.15, s.weaponCooldownTime * 0.85);
         sendMsg(
           player.id,
-          "Ship upgraded to " + (s.shipTier === 1 ? "Medium" : "Large") + "!",
+          "Ship upgraded to " +
+            (s.shipTier === 1 ? "Medium" : "Large") +
+            "! Guns enhanced!",
           "success",
         );
       }
@@ -2067,9 +2128,16 @@ function handleShopAction(player, data) {
         s.sz += 4;
         s.baseSpd = Math.max(1.0, s.baseSpd - 0.2);
         s.maxSpd = s.baseSpd;
+        if (s.weaponDamage > 0) {
+          s.weaponDamage = Math.round(s.weaponDamage * 1.5);
+          s.weaponCooldownTime = Math.max(0.15, s.weaponCooldownTime * 0.85);
+        }
         sendMsg(
           player.id,
-          "Ship upgraded to " + (s.shipTier === 1 ? "Medium" : "Large") + "!",
+          "Ship upgraded to " +
+            (s.shipTier === 1 ? "Medium" : "Large") +
+            "!" +
+            (s.weaponDamage > 0 ? " Guns enhanced!" : ""),
           "success",
         );
       }
@@ -2104,7 +2172,9 @@ function handleShopAction(player, data) {
         s.sz += 3;
         s.baseSpd = Math.max(1.0, s.baseSpd - 0.3);
         s.maxSpd = s.baseSpd;
-        sendMsg(player.id, "Ship upgraded!", "success");
+        s.weaponDamage = Math.round(s.weaponDamage * 1.5);
+        s.weaponCooldownTime = Math.max(0.15, s.weaponCooldownTime * 0.85);
+        sendMsg(player.id, "Ship upgraded! Guns enhanced!", "success");
       }
     }
   } else if (action === "buyweapon") {
@@ -2176,7 +2246,15 @@ function handleShopAction(player, data) {
     s.hp = s.maxHp;
     sendMsg(player.id, "Hull repaired!", "success");
   } else if (action === "refuel") {
-    player.fuel = 100;
+    if (player.faction === "navy") {
+      player.fuel = 100;
+    } else {
+      const rate = player.faction === "pirate" ? 2 : 1.5;
+      const fuelCost = Math.floor((100 - player.fuel) * rate);
+      if (player.money < fuelCost) return;
+      player.money -= fuelCost;
+      player.fuel = 100;
+    }
     s.maxSpd = s.baseSpd;
     sendMsg(player.id, "Refueled to 100%", "success");
   } else if (action === "navyrepair") {
@@ -2430,7 +2508,7 @@ function tick() {
         if (t === "fishing" && Math.random() < 0.5) spawnNPC("fishing");
       }
       spawnTimers[t] =
-        t === "merchant" ? 3 : t === "pirate" ? 4 : t === "navy" ? 5 : 10;
+        t === "merchant" ? 3 : t === "pirate" ? 4 : t === "navy" ? 5 : 8;
     }
   }
 
@@ -2453,7 +2531,7 @@ function tick() {
   for (const [pid, pl] of players.entries()) {
     if (pl.ship && !pl.ship.alive && !pl.dead) {
       pl.dead = true;
-      const stats = {};
+      const stats = { faction: pl.faction };
       if (pl.faction === "navy") {
         stats.title = "PATROL ENDED";
         stats.sub = "Your vessel was lost.";
@@ -2470,6 +2548,7 @@ function tick() {
         stats.shipsSeized = pl.shipsSeized;
         stats.money = pl.money;
       }
+      stats.totalIncome = pl.totalIncome;
       pl.socket.emit("gameOver", stats);
     }
   }
@@ -2608,6 +2687,17 @@ function broadcastState() {
       time: gameTime,
       leaderboard: getLeaderboard(),
       hazards,
+      hits: hitEffects.map((h) => ({
+        x: Math.round(h.x),
+        y: Math.round(h.y),
+        dmg: h.dmg,
+      })),
+      explosions: explosions.map((e) => ({
+        x: Math.round(e.x),
+        y: Math.round(e.y),
+        r: e.r,
+        t: e.t,
+      })),
     });
   }
 }
@@ -2722,6 +2812,31 @@ io.on("connection", (socket) => {
       const shopData = getShopData(pl, data.portKey);
       if (shopData) pl.socket.emit("shopOpen", shopData);
     }
+  });
+
+  socket.on("quickRespawn", () => {
+    const pl = players.get(socket.id);
+    if (!pl || !pl.dead) return;
+    const faction = pl.faction;
+    const startTypes = { navy: "patrol", shipping: "coastal", pirate: "skiff" };
+    const factionPorts =
+      faction === "navy"
+        ? NAVY_PORTS
+        : faction === "pirate"
+          ? PIRATE_PORTS
+          : NEUTRAL_PORTS;
+    const sp = pick(factionPorts);
+    const safe = spawnInPort(sp);
+    const ship = new Ship(safe.x, safe.y, startTypes[faction], socket.id);
+    ship.hp = Math.floor(ship.maxHp * 0.5);
+    pl.ship = ship;
+    pl.dead = false;
+    pl.money = Math.floor(pl.money * 0.75);
+    pl.loot = 0;
+    pl.fuel = 80;
+    pl.contract = null;
+    pl.drunk = 0;
+    socket.emit("joined", { faction, name: pl.name, shipId: ship.id });
   });
 
   socket.on("respawn", (data) => {

@@ -141,14 +141,14 @@
       }
       .faction-card p {
         font-size: 11px;
-        color: #95a5a6;
+        color: #b0bec5;
         line-height: 1.4;
         margin-bottom: 6px;
       }
       .faction-card ul {
         list-style: none;
         font-size: 10px;
-        color: #7f8c8d;
+        color: #9aa5b4;
         line-height: 1.5;
       }
       .faction-card ul li::before {
@@ -266,7 +266,7 @@
       .hud-label {
         font-size: 8px;
         letter-spacing: 1.5px;
-        color: #666;
+        color: #9aa5b4;
         text-transform: uppercase;
         margin-top: 2px;
       }
@@ -399,7 +399,7 @@
       }
       .shop-sub {
         font-size: 10px;
-        color: #666;
+        color: #9aa5b4;
         margin-bottom: 12px;
         line-height: 1.4;
       }
@@ -449,7 +449,7 @@
       }
       .si-desc {
         font-size: 9px;
-        color: #666;
+        color: #9aa5b4;
         margin-top: 1px;
       }
       .si-btn {
@@ -504,10 +504,10 @@
       .shop-section-title {
         font-size: 9px;
         letter-spacing: 1.8px;
-        color: #555;
+        color: #8a95a5;
         text-transform: uppercase;
         padding: 6px 0 3px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
         margin: 8px 0 4px;
       }
 
@@ -547,7 +547,7 @@
       }
       #contract-hud .ch-dist {
         font-size: 10px;
-        color: #666;
+        color: #9aa5b4;
       }
 
       #slow-indicator {
@@ -658,7 +658,7 @@
       }
       .go-sub {
         font-size: 13px;
-        color: #666;
+        color: #9aa5b4;
         margin-bottom: 24px;
         max-width: 380px;
         text-align: center;
@@ -706,7 +706,7 @@
         left: 50%;
         transform: translateX(-50%);
         font-size: 9px;
-        color: rgba(100, 110, 120, 0.7);
+        color: rgba(150, 165, 180, 0.7);
         letter-spacing: 0.8px;
         text-align: center;
         max-width: 90%;
@@ -756,7 +756,7 @@
         font-family: "Oswald", sans-serif;
         font-size: 10px;
         letter-spacing: 2px;
-        color: #666;
+        color: #9aa5b4;
         text-transform: uppercase;
         text-align: center;
         margin-bottom: 4px;
@@ -806,7 +806,7 @@
         pointer-events: none;
         font-size: 10px;
         letter-spacing: 1px;
-        color: #888;
+        color: #b0bec5;
       }
       .weapon-ready {
         color: #27ae60 !important;
@@ -824,7 +824,7 @@
         padding: 4px 10px;
         border-radius: 3px;
         font-size: 10px;
-        color: #888;
+        color: #b0bec5;
         letter-spacing: 1px;
         pointer-events: none;
       }
@@ -882,7 +882,7 @@
       }
       .settings-label {
         font-size: 11px;
-        color: #888;
+        color: #b0bec5;
         letter-spacing: 0.5px;
       }
       .settings-value {
@@ -943,11 +943,103 @@
         padding: 2px 8px;
         border-radius: 3px;
         font-size: 9px;
-        color: #666;
+        color: #9aa5b4;
         letter-spacing: 1px;
         pointer-events: none;
         display: none;
         z-index: 55;
+      }
+
+      #mobile-controls {
+        display: none;
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 45;
+      }
+      #mobile-controls.active { display: block; }
+      #joystick-zone {
+        position: absolute;
+        bottom: 30px;
+        left: 30px;
+        width: 140px;
+        height: 140px;
+        pointer-events: auto;
+        touch-action: none;
+      }
+      #joystick-base {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 2px solid rgba(255,255,255,0.15);
+        position: absolute;
+        top: 10px;
+        left: 10px;
+      }
+      #joystick-knob {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        border: 2px solid rgba(255,255,255,0.4);
+        position: absolute;
+        top: 48px;
+        left: 48px;
+        transition: none;
+      }
+      .mobile-btn {
+        position: absolute;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 2px solid rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.6);
+        font-size: 11px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        touch-action: none;
+        user-select: none;
+      }
+      .mobile-btn.active {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.5);
+      }
+      #mb-shoot { bottom: 40px; right: 30px; width: 70px; height: 70px; border-color: rgba(231,76,60,0.5); color: #e74c3c; }
+      #mb-interact { bottom: 120px; right: 40px; border-color: rgba(39,174,96,0.5); color: #27ae60; }
+
+      .keybind-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+      }
+      .keybind-label { font-size: 10px; color: #9aa5b4; }
+      .keybind-btn {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 10px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #ecf0f1;
+        border-radius: 3px;
+        cursor: pointer;
+        min-width: 36px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+      .keybind-btn.listening {
+        border-color: #e74c3c;
+        color: #e74c3c;
+        animation: slowPulse 0.6s ease-in-out infinite;
       }
     </style>
   </head>
@@ -1152,8 +1244,7 @@
         <div class="ch-dist" id="ch-dist">—</div>
       </div>
       <div class="controls-hint">
-        WASD Move &bull; LEFT CLICK Shoot &bull; E Dock/Board &bull; SPACE Boost
-        &bull; ESC Close
+        WASD Move &bull; LEFT CLICK Shoot &bull; E Dock/Board &bull; ESC Close
       </div>
     </div>
 
@@ -1170,15 +1261,7 @@
       <div class="settings-row">
         <span class="settings-label">UI Scale</span>
         <span class="settings-value" id="ui-scale-val">1.0x</span>
-        <input
-          type="range"
-          class="settings-slider"
-          id="ui-scale"
-          min="0.7"
-          max="1.5"
-          step="0.1"
-          value="1.0"
-        />
+        <input type="range" class="settings-slider" id="ui-scale" min="0.7" max="1.5" step="0.1" value="1.0" />
       </div>
       <div class="settings-row">
         <span class="settings-label">Show FPS</span>
@@ -1191,27 +1274,38 @@
       <div class="settings-row">
         <span class="settings-label">Minimap Size</span>
         <span class="settings-value" id="minimap-size-val">Normal</span>
-        <input
-          type="range"
-          class="settings-slider"
-          id="minimap-size"
-          min="0"
-          max="2"
-          step="1"
-          value="1"
-        />
+        <input type="range" class="settings-slider" id="minimap-size" min="0" max="2" step="1" value="1" />
       </div>
       <div class="settings-row">
         <span class="settings-label">Show Grid</span>
         <button class="settings-toggle on" id="toggle-grid"></button>
       </div>
+      <div style="font-size:9px;letter-spacing:1.8px;color:#8a95a5;text-transform:uppercase;padding:8px 0 4px;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px">KEY BINDINGS</div>
+      <div class="keybind-row"><span class="keybind-label">Move Up</span><button class="keybind-btn" data-bind="up">W</button></div>
+      <div class="keybind-row"><span class="keybind-label">Move Down</span><button class="keybind-btn" data-bind="down">S</button></div>
+      <div class="keybind-row"><span class="keybind-label">Move Left</span><button class="keybind-btn" data-bind="left">A</button></div>
+      <div class="keybind-row"><span class="keybind-label">Move Right</span><button class="keybind-btn" data-bind="right">D</button></div>
+      <div class="keybind-row"><span class="keybind-label">Interact</span><button class="keybind-btn" data-bind="interact">E</button></div>
+    </div>
+
+    <div id="mobile-controls">
+      <div id="joystick-zone">
+        <div id="joystick-base"></div>
+        <div id="joystick-knob"></div>
+      </div>
+      <div class="mobile-btn" id="mb-shoot">FIRE</div>
+      <div class="mobile-btn" id="mb-interact">E</div>
     </div>
 
     <div id="gameover-screen">
       <div class="go-title" id="go-title">MISSION FAILED</div>
       <div class="go-sub" id="go-sub">Your vessel was lost.</div>
       <div class="go-stats" id="go-stats"></div>
-      <button id="restart-btn">NEW OPERATION</button>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button id="respawn-btn" style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2.5px;padding:9px 40px;background:transparent;border:2px solid #27ae60;color:#27ae60;cursor:pointer;transition:all 0.25s;border-radius:3px">RESPAWN</button>
+        <button id="restart-btn" style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2.5px;padding:9px 40px;background:transparent;border:2px solid #e74c3c;color:#e74c3c;cursor:pointer;transition:all 0.25s;border-radius:3px">MAIN MENU</button>
+      </div>
+      <div id="respawn-info" style="font-size:10px;color:#9aa5b4;margin-top:8px;text-align:center;letter-spacing:0.5px">Respawn: 50% hull, keep 75% money, reset to base ship. Main Menu: full reset.</div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -1472,13 +1566,35 @@
       let connected = false;
       let lastMessages = [];
       let settingsOpen = false;
-      const settings = {
+      let prevState = null;
+      let prevMoney = null, prevScore = null, prevLoot = null;
+      const floatingTexts = [];
+
+      function loadSettings() {
+        try {
+          const saved = localStorage.getItem("sw_settings");
+          if (saved) return JSON.parse(saved);
+        } catch(e) {}
+        return null;
+      }
+      function saveSettings() {
+        try { localStorage.setItem("sw_settings", JSON.stringify(settings)); } catch(e) {}
+      }
+      const defaultSettings = {
         uiScale: 1.0,
         showFps: false,
         showNames: true,
         minimapSize: 1,
         showGrid: true,
+        binds: { up: "w", down: "s", left: "a", right: "d", interact: "e" },
       };
+      const saved = loadSettings();
+      const settings = Object.assign({}, defaultSettings, saved);
+      if (!settings.binds) settings.binds = { ...defaultSettings.binds };
+      const isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      let mobileJoy = { active: false, dx: 0, dy: 0, touchId: null };
+      let mobileShoot = false;
+
       let fpsFrames = 0,
         fpsTime = 0,
         fpsDisplay = 0;
@@ -1596,6 +1712,7 @@
           document.getElementById("menu-screen").style.display = "none";
           document.getElementById("game-screen").style.display = "block";
           document.getElementById("gameover-screen").style.display = "none";
+          if (isMobile) document.getElementById("mobile-controls").classList.add("active");
           document.getElementById("faction-name").textContent =
             data.faction === "navy"
               ? "EU NAVFORCE"
@@ -1624,6 +1741,28 @@
           updateLeaderboard(data.leaderboard);
           document.getElementById("players-count").textContent =
             (data.leaderboard?.length || 0) + " ONLINE";
+
+          if (data.self) {
+            const curMoney = data.self.money || 0;
+            const curScore = data.self.score || 0;
+            const curLoot = data.self.loot || 0;
+            if (prevMoney !== null && data.self.x) {
+              const moneyDiff = curMoney - prevMoney;
+              const scoreDiff = curScore - prevScore;
+              const lootDiff = curLoot - prevLoot;
+              if (moneyDiff > 0) floatingTexts.push({ x: data.self.x, y: data.self.y - 20, text: "+$" + Math.floor(moneyDiff), color: "#f1c40f", t: 1.2 });
+              if (scoreDiff > 0) floatingTexts.push({ x: data.self.x, y: data.self.y - 30, text: "+" + Math.floor(scoreDiff) + " PTS", color: "#3498db", t: 1.2 });
+              if (lootDiff > 0) floatingTexts.push({ x: data.self.x, y: data.self.y - 10, text: "+" + Math.floor(lootDiff) + " LOOT", color: "#e67e22", t: 1.0 });
+            }
+            prevMoney = curMoney;
+            prevScore = curScore;
+            prevLoot = curLoot;
+          }
+
+          if (shopOpen && currentShopPort && data.self && data.self.x !== undefined) {
+            const port = PORTS[currentShopPort];
+            if (port && dist(data.self, port) > DOCK_RANGE + 30) closeShop();
+          }
         });
 
         socket.on("shopOpen", (data) => {
@@ -1636,25 +1775,23 @@
           document.getElementById("game-screen").style.display = "none";
           document.getElementById("shop-panel").style.display = "none";
           document.getElementById("gameover-screen").style.display = "flex";
+          if (isMobile) document.getElementById("mobile-controls").classList.remove("active");
           document.getElementById("go-title").textContent = stats.title;
           document.getElementById("go-sub").textContent = stats.sub;
           const s = document.getElementById("go-stats");
           s.innerHTML = "";
           if (stats.intercepts !== undefined)
-            s.innerHTML +=
-              "<div>Intercepts<span>" + stats.intercepts + "</span></div>";
+            s.innerHTML += "<div>Intercepts<span>" + stats.intercepts + "</span></div>";
           if (stats.score !== undefined)
-            s.innerHTML +=
-              "<div>Final Score<span>" + fmt$(stats.score) + "</span></div>";
+            s.innerHTML += "<div>Final Score<span>" + fmt$(stats.score) + "</span></div>";
           if (stats.money !== undefined)
-            s.innerHTML +=
-              "<div>Total Earnings<span>" + fmt$(stats.money) + "</span></div>";
+            s.innerHTML += "<div>Total Earnings<span>" + fmt$(stats.money) + "</span></div>";
           if (stats.deliveries !== undefined)
-            s.innerHTML +=
-              "<div>Deliveries<span>" + stats.deliveries + "</span></div>";
+            s.innerHTML += "<div>Deliveries<span>" + stats.deliveries + "</span></div>";
           if (stats.shipsSeized !== undefined)
-            s.innerHTML +=
-              "<div>Ships Seized<span>" + stats.shipsSeized + "</span></div>";
+            s.innerHTML += "<div>Ships Seized<span>" + stats.shipsSeized + "</span></div>";
+          if (stats.totalIncome !== undefined)
+            s.innerHTML += "<div>Lifetime Income<span>" + fmt$(stats.totalIncome) + "</span></div>";
           shopOpen = false;
         });
       }
@@ -1662,19 +1799,20 @@
       // ======================== INPUT ========================
       function sendInput() {
         if (!socket || !myFaction || !gameState) return;
+        const b = settings.binds;
         let shootAngle = 0;
         if (gameState.self && gameState.self.x !== undefined) {
           const shipSX = gameState.self.x - cam.x;
           const shipSY = gameState.self.y - cam.y;
           shootAngle = Math.atan2(mouseY - shipSY, mouseX - shipSX);
         }
+        const wKey = !!keys[b.up] || !!keys["arrowup"] || (mobileJoy.active && mobileJoy.dy < -0.3);
+        const sKey = !!keys[b.down] || !!keys["arrowdown"] || (mobileJoy.active && mobileJoy.dy > 0.3);
+        const aKey = !!keys[b.left] || !!keys["arrowleft"] || (mobileJoy.active && mobileJoy.dx < -0.3);
+        const dKey = !!keys[b.right] || !!keys["arrowright"] || (mobileJoy.active && mobileJoy.dx > 0.3);
         socket.volatile.emit("input", {
-          w: !!keys["w"] || !!keys["arrowup"],
-          a: !!keys["a"] || !!keys["arrowleft"],
-          s: !!keys["s"] || !!keys["arrowdown"],
-          d: !!keys["d"] || !!keys["arrowright"],
-          space: !!keys[" "],
-          shoot: mouseDown,
+          w: wKey, a: aKey, s: sKey, d: dKey,
+          shoot: mouseDown || mobileShoot,
           mouseAngle: shootAngle,
         });
       }
@@ -1693,45 +1831,31 @@
             document.getElementById("drunk-hud").textContent =
               "DRUNK " + Math.ceil(self.drunk) + "s";
         }
+        document.getElementById("fuel-bar").style.width = self.fuel + "%";
+        document.getElementById("resource-label").textContent = "FUEL";
         if (myFaction === "navy") {
-          document.getElementById("fuel-bar").style.width = self.fuel + "%";
-          document.getElementById("resource-label").textContent = "FUEL";
-          document.getElementById("credits-display").textContent = fmt$(
-            self.score,
-          );
+          document.getElementById("credits-display").textContent = fmt$(self.score) + " PTS";
           document.getElementById("loot-label").style.display = "none";
           document.getElementById("loot-bar-wrap").style.display = "none";
           document.getElementById("threat-label").textContent = "INTERCEPTS";
-          document.getElementById("threat-display").textContent =
-            self.intercepts;
+          document.getElementById("threat-display").textContent = self.intercepts;
           document.getElementById("threat-display").style.color = "#3498db";
         } else if (myFaction === "shipping") {
-          document.getElementById("fuel-bar").style.width =
-            Math.min(100, self.money / 100) + "%";
-          document.getElementById("resource-label").textContent = "BALANCE";
-          document.getElementById("credits-display").textContent = fmt$(
-            self.money,
-          );
+          document.getElementById("credits-display").textContent = fmt$(self.money);
           document.getElementById("loot-label").style.display = "none";
           document.getElementById("loot-bar-wrap").style.display = "none";
           document.getElementById("threat-label").textContent = "DELIVERIES";
-          document.getElementById("threat-display").textContent =
-            self.deliveries;
+          document.getElementById("threat-display").textContent = self.deliveries;
           document.getElementById("threat-display").style.color = "#27ae60";
         } else if (myFaction === "pirate") {
-          document.getElementById("fuel-bar").style.width =
-            (self.loot / self.maxLoot) * 100 + "%";
-          document.getElementById("resource-label").textContent = "LOOT HOLD";
-          document.getElementById("credits-display").textContent = fmt$(
-            self.money,
-          );
+          document.getElementById("credits-display").textContent = fmt$(self.money);
           document.getElementById("loot-label").style.display = "block";
           document.getElementById("loot-bar-wrap").style.display = "block";
           document.getElementById("loot-bar").style.width =
             (self.loot / self.maxLoot) * 100 + "%";
-          document.getElementById("threat-label").textContent = "THREAT LEVEL";
-          document.getElementById("threat-display").textContent = "LOW";
-          document.getElementById("threat-display").style.color = "#27ae60";
+          document.getElementById("threat-label").textContent = "SHIPS SEIZED";
+          document.getElementById("threat-display").textContent = self.shipsSeized;
+          document.getElementById("threat-display").style.color = "#e74c3c";
         }
         document.getElementById("slow-indicator").style.display = self.slowed
           ? "block"
@@ -2323,6 +2447,56 @@
           }
         }
 
+        // Hit damage popups
+        if (gameState.hits) {
+          for (const h of gameState.hits) {
+            if (!vis(h.x, h.y, 30)) continue;
+            const p = w2s(h.x, h.y);
+            ctx.font = "bold 14px Oswald";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ff4444";
+            ctx.strokeStyle = "rgba(0,0,0,0.7)";
+            ctx.lineWidth = 3;
+            ctx.strokeText("-" + h.dmg, p.x, p.y - 15);
+            ctx.fillText("-" + h.dmg, p.x, p.y - 15);
+          }
+        }
+
+        // Rocket explosions
+        if (gameState.explosions) {
+          for (const e of gameState.explosions) {
+            if (!vis(e.x, e.y, e.r + 20)) continue;
+            const p = w2s(e.x, e.y);
+            const progress = 1 - (e.t / 0.6);
+            const r = e.r * (0.3 + progress * 0.7);
+            const alpha = Math.max(0, 1 - progress);
+            ctx.fillStyle = `rgba(255, 100, 0, ${alpha * 0.5})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = `rgba(255, 200, 50, ${alpha * 0.7})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = `rgba(255, 255, 200, ${alpha * 0.9})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.2, 0, Math.PI * 2); ctx.fill();
+          }
+        }
+
+        // Floating money/loot texts
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+          const ft = floatingTexts[i];
+          ft.t -= dt;
+          ft.y -= 25 * dt;
+          if (ft.t <= 0) { floatingTexts.splice(i, 1); continue; }
+          if (!vis(ft.x, ft.y, 30)) continue;
+          const p = w2s(ft.x, ft.y);
+          const alpha = Math.min(1, ft.t / 0.3);
+          ctx.font = "bold 16px Oswald";
+          ctx.textAlign = "center";
+          ctx.fillStyle = ft.color + Math.round(alpha * 255).toString(16).padStart(2, "0");
+          ctx.strokeStyle = `rgba(0,0,0,${alpha * 0.7})`;
+          ctx.lineWidth = 3;
+          ctx.strokeText(ft.text, p.x, p.y);
+          ctx.fillText(ft.text, p.x, p.y);
+        }
+
         // Interaction prompts
         const prompt = document.getElementById("interact-prompt");
         if (gameState.self && gameState.self.boardState === null) {
@@ -2727,17 +2901,10 @@
         window.addEventListener("keydown", (e) => {
           keys[e.key.toLowerCase()] = true;
           if (e.key === "Escape") {
-            if (shopOpen) {
-              closeShop();
-              return;
-            }
-            if (settingsOpen) {
-              settingsOpen = false;
-              document.getElementById("settings-panel").style.display = "none";
-              return;
-            }
+            if (shopOpen) { closeShop(); return; }
+            if (settingsOpen) { settingsOpen = false; document.getElementById("settings-panel").style.display = "none"; return; }
           }
-          if (e.key.toLowerCase() === "e" && !shopOpen && myFaction) {
+          if (e.key.toLowerCase() === settings.binds.interact && !shopOpen && myFaction) {
             socket.emit("interact");
           }
         });
@@ -2807,6 +2974,19 @@
             document.getElementById("settings-panel").style.display =
               settingsOpen ? "block" : "none";
           });
+        // Apply saved settings to UI controls
+        document.getElementById("ui-scale").value = settings.uiScale;
+        document.getElementById("ui-scale-val").textContent = settings.uiScale.toFixed(1) + "x";
+        document.documentElement.style.setProperty("--ui-scale", settings.uiScale);
+        document.getElementById("toggle-fps").classList.toggle("on", settings.showFps);
+        document.getElementById("toggle-names").classList.toggle("on", settings.showNames);
+        document.getElementById("toggle-grid").classList.toggle("on", settings.showGrid);
+        document.getElementById("minimap-size").value = settings.minimapSize;
+        const initSizes = [{ w: 130, h: 100, label: "Small" }, { w: 180, h: 140, label: "Normal" }, { w: 260, h: 200, label: "Large" }];
+        const initSz = initSizes[settings.minimapSize];
+        mcanvas.width = initSz.w; mcanvas.height = initSz.h;
+        document.getElementById("minimap-size-val").textContent = initSz.label;
+
         document
           .getElementById("ui-scale")
           .addEventListener("input", function () {
@@ -2817,24 +2997,28 @@
               "--ui-scale",
               settings.uiScale,
             );
+            saveSettings();
           });
         document
           .getElementById("toggle-fps")
           .addEventListener("click", function () {
             settings.showFps = !settings.showFps;
             this.classList.toggle("on", settings.showFps);
+            saveSettings();
           });
         document
           .getElementById("toggle-names")
           .addEventListener("click", function () {
             settings.showNames = !settings.showNames;
             this.classList.toggle("on", settings.showNames);
+            saveSettings();
           });
         document
           .getElementById("toggle-grid")
           .addEventListener("click", function () {
             settings.showGrid = !settings.showGrid;
             this.classList.toggle("on", settings.showGrid);
+            saveSettings();
           });
         document
           .getElementById("minimap-size")
@@ -2849,7 +3033,19 @@
             mcanvas.width = sz.w;
             mcanvas.height = sz.h;
             document.getElementById("minimap-size-val").textContent = sz.label;
+            saveSettings();
           });
+        document.getElementById("respawn-btn").addEventListener("click", () => {
+          document.getElementById("gameover-screen").style.display = "none";
+          document.getElementById("game-screen").style.display = "block";
+          if (isMobile) document.getElementById("mobile-controls").classList.add("active");
+          document.getElementById("drunk-overlay").style.display = "none";
+          document.getElementById("drunk-hud").style.display = "none";
+          prevMoney = null; prevScore = null; prevLoot = null;
+          floatingTexts.length = 0;
+          socket.emit("quickRespawn");
+        });
+
         document.getElementById("restart-btn").addEventListener("click", () => {
           document.getElementById("gameover-screen").style.display = "none";
           document.getElementById("menu-screen").style.display = "flex";
@@ -2862,16 +3058,101 @@
           myFaction = null;
           myShipId = null;
           selectedFaction = null;
-          document
-            .querySelectorAll(".faction-card")
-            .forEach((c) => c.classList.remove("selected"));
+          prevMoney = null; prevScore = null; prevLoot = null;
+          floatingTexts.length = 0;
+          socket.emit("respawn", {});
+          document.querySelectorAll(".faction-card").forEach((c) => c.classList.remove("selected"));
           const btn = document.getElementById("deploy-btn");
           btn.classList.remove("ready");
           btn.textContent = "SELECT A FACTION";
         });
 
+        // Keybind buttons
+        let listeningBind = null;
+        document.querySelectorAll(".keybind-btn").forEach(btn => {
+          const action = btn.dataset.bind;
+          btn.textContent = keyLabel(settings.binds[action]);
+          btn.addEventListener("click", function() {
+            if (listeningBind) {
+              listeningBind.classList.remove("listening");
+            }
+            listeningBind = this;
+            this.classList.add("listening");
+            this.textContent = "...";
+          });
+        });
+        window.addEventListener("keydown", (e) => {
+          if (listeningBind) {
+            e.preventDefault();
+            e.stopPropagation();
+            const action = listeningBind.dataset.bind;
+            settings.binds[action] = e.key.toLowerCase();
+            listeningBind.textContent = keyLabel(e.key.toLowerCase());
+            listeningBind.classList.remove("listening");
+            listeningBind = null;
+            saveSettings();
+            return;
+          }
+        }, true);
+
+        // Mobile touch controls
+        if (isMobile) {
+          document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+          const jZone = document.getElementById("joystick-zone");
+          const knob = document.getElementById("joystick-knob");
+          jZone.addEventListener("touchstart", (e) => {
+            if (mobileJoy.touchId !== null) return;
+            const t = e.changedTouches[0];
+            mobileJoy.touchId = t.identifier;
+            mobileJoy.active = true;
+            e.preventDefault();
+          }, { passive: false });
+          jZone.addEventListener("touchmove", (e) => {
+            for (const t of e.changedTouches) {
+              if (t.identifier !== mobileJoy.touchId) continue;
+              const rect = document.getElementById("joystick-base").getBoundingClientRect();
+              const cx = rect.left + rect.width / 2;
+              const cy = rect.top + rect.height / 2;
+              let dx = t.clientX - cx, dy = t.clientY - cy;
+              const maxR = 50;
+              const len = Math.sqrt(dx*dx + dy*dy);
+              if (len > maxR) { dx = dx/len*maxR; dy = dy/len*maxR; }
+              mobileJoy.dx = dx / maxR;
+              mobileJoy.dy = dy / maxR;
+              knob.style.left = (48 + dx) + "px";
+              knob.style.top = (48 + dy) + "px";
+              e.preventDefault();
+            }
+          }, { passive: false });
+          const jEnd = () => { mobileJoy.active = false; mobileJoy.dx = 0; mobileJoy.dy = 0; mobileJoy.touchId = null; knob.style.left = "48px"; knob.style.top = "48px"; };
+          jZone.addEventListener("touchend", jEnd);
+          jZone.addEventListener("touchcancel", jEnd);
+
+          const shootBtn = document.getElementById("mb-shoot");
+          shootBtn.addEventListener("touchstart", (e) => { mobileShoot = true; shootBtn.classList.add("active"); e.preventDefault(); }, { passive: false });
+          shootBtn.addEventListener("touchend", () => { mobileShoot = false; shootBtn.classList.remove("active"); });
+          shootBtn.addEventListener("touchcancel", () => { mobileShoot = false; shootBtn.classList.remove("active"); });
+
+          const interactBtn = document.getElementById("mb-interact");
+          interactBtn.addEventListener("touchstart", (e) => {
+            interactBtn.classList.add("active");
+            if (socket && myFaction && !shopOpen) socket.emit("interact");
+            e.preventDefault();
+          }, { passive: false });
+          interactBtn.addEventListener("touchend", () => { interactBtn.classList.remove("active"); });
+        }
+
         connectSocket();
         requestAnimationFrame(render);
+      }
+
+      function keyLabel(k) {
+        if (k === " ") return "SPACE";
+        if (k === "arrowup") return "↑";
+        if (k === "arrowdown") return "↓";
+        if (k === "arrowleft") return "←";
+        if (k === "arrowright") return "→";
+        return k.toUpperCase();
       }
 
       window.addEventListener("load", init);
