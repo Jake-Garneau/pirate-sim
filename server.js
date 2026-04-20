@@ -1744,7 +1744,7 @@ function getShopData(player, portKey) {
         desc: "+50 HP, +200 hold, +50% gun power, larger hull, -0.3 speed",
         action: "upgrade",
         id: "tier",
-        canBuy: player.money >= 3000 && s.shipTier < 2,
+        canBuy: player.money >= 4000 && s.shipTier < 2,
       },
     ];
     sections.push({ title: "Upgrades", items: upgItems });
