@@ -229,6 +229,11 @@ const BLACK_MARKETS = {
     label: "Hobyo Premium",
     desc: "Best prices. Less navy presence.",
   },
+  kismayo: {
+    rate: 0.92,
+    label: "Kismayo Market",
+    desc: "Balanced rates. Moderate risk.",
+  },
 };
 
 const LANES = [
@@ -553,6 +558,7 @@ const MarketThreat = {
   bosaso: { heat: 0, naval: 0, dumped: 0, state: "OPEN" },
   eyl: { heat: 0, naval: 0, dumped: 0, state: "OPEN" },
   hobyo: { heat: 0, naval: 0, dumped: 0, state: "OPEN" },
+  kismayo: { heat: 0, naval: 0, dumped: 0, state: "OPEN" },
 };
 
 function getMarketPrice(mk, base) {
@@ -612,7 +618,7 @@ const players = new Map();
 const npcs = [];
 const projectiles = [];
 let gameTime = 0;
-const spawnTimers = { merchant: 4, pirate: 6, navy: 6, fishing: 8 };
+const spawnTimers = { merchant: 4, pirate: 6, navy: 7, fishing: 8 };
 const messages = []; // global messages [{text,type,time,targetId?}]
 
 // ======================== SHIP ========================
@@ -691,16 +697,22 @@ class Ship {
     if (!onLand(nx, ny)) return;
     const xOk = !onLand(nx, this.y);
     const yOk = !onLand(this.x, ny);
-    if (xOk && !yOk) { this.vy *= -0.3; return; }
-    if (yOk && !xOk) { this.vx *= -0.3; return; }
+    if (xOk && !yOk) {
+      this.vy *= -0.3;
+      return;
+    }
+    if (yOk && !xOk) {
+      this.vx *= -0.3;
+      return;
+    }
     if (xOk && yOk) {
       if (Math.abs(this.vx) > Math.abs(this.vy)) this.vy *= -0.3;
       else this.vx *= -0.3;
       return;
     }
     // Fully blocked — push away from land
-    const pushX = this.vx !== 0 ? -Math.sign(this.vx) : (Math.random() - 0.5);
-    const pushY = this.vy !== 0 ? -Math.sign(this.vy) : (Math.random() - 0.5);
+    const pushX = this.vx !== 0 ? -Math.sign(this.vx) : Math.random() - 0.5;
+    const pushY = this.vy !== 0 ? -Math.sign(this.vy) : Math.random() - 0.5;
     this.vx = pushX * 0.5;
     this.vy = pushY * 0.5;
   }
@@ -711,7 +723,13 @@ class Ship {
       for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
         const tx = this.x + Math.cos(a) * r;
         const ty = this.y + Math.sin(a) * r;
-        if (tx > 15 && tx < WW - 15 && ty > 15 && ty < WH - 15 && !onLand(tx, ty)) {
+        if (
+          tx > 15 &&
+          tx < WW - 15 &&
+          ty > 15 &&
+          ty < WH - 15 &&
+          !onLand(tx, ty)
+        ) {
           this.x = tx;
           this.y = ty;
           this.vx = Math.cos(a) * 0.5;
@@ -1589,8 +1607,12 @@ function getShopData(player, portKey) {
   }
   // ===== PIRATE AT BLACK MARKET =====
   else if (player.faction === "pirate" && port.f === "pirate") {
-    const mt = MarketThreat[portKey];
-    const bm = BLACK_MARKETS[portKey];
+    const mt = MarketThreat[portKey] || { heat: 0, naval: 0, state: "OPEN" };
+    const bm = BLACK_MARKETS[portKey] || {
+      label: port.name + " Market",
+      rate: 1.0,
+      desc: "",
+    };
     sections.push({
       title: "Market Status",
       items: [
@@ -1944,7 +1966,7 @@ function handleShopAction(player, data) {
     if (pr.state === "LOCKDOWN" || player.loot <= 0) return;
     player.money += pr.price;
     player.totalIncome += pr.price;
-    MarketThreat[portKey].dumped += pr.price * 0.3;
+    if (MarketThreat[portKey]) MarketThreat[portKey].dumped += pr.price * 0.3;
     sendMsg(player.id, "Sold loot for $" + pr.price, "success");
     player.loot = 0;
   } else if (action === "buyrum") {
@@ -2626,12 +2648,7 @@ io.on("connection", (socket) => {
           : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
     const safe = spawnInPort(sp);
-    const ship = new Ship(
-      safe.x,
-      safe.y,
-      startTypes[faction],
-      socket.id,
-    );
+    const ship = new Ship(safe.x, safe.y, startTypes[faction], socket.id);
 
     const player = {
       id: socket.id,
@@ -2720,12 +2737,7 @@ io.on("connection", (socket) => {
           : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
     const safe = spawnInPort(sp);
-    const ship = new Ship(
-      safe.x,
-      safe.y,
-      startTypes[faction],
-      socket.id,
-    );
+    const ship = new Ship(safe.x, safe.y, startTypes[faction], socket.id);
     pl.faction = faction;
     pl.ship = ship;
     pl.dead = false;
