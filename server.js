@@ -521,6 +521,18 @@ function findWater(nx, ny, maxR) {
   }
   return { x: 800, y: 800 };
 }
+function spawnInPort(port) {
+  // Try to find a valid water position within port radius
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.random() * (DOCK_RANGE * 0.6);
+    const tx = port.x + Math.cos(a) * r;
+    const ty = port.y + Math.sin(a) * r;
+    if (tx > 20 && tx < WW - 20 && ty > 20 && ty < WH - 20 && !onLand(tx, ty))
+      return { x: tx, y: ty };
+  }
+  return findWater(port.x, port.y, 300);
+}
 
 // ======================== SAFE ZONES ========================
 function isInSafePort(ship) {
@@ -672,45 +684,44 @@ class Ship {
       if (dist(this, p) < DOCK_RANGE + 25) return true;
     return false;
   }
-  _hitsLand(x, y) {
-    const r = Math.max(this.sz * 0.6, 5);
-    if (onLand(x, y)) return true;
-    if (onLand(x + r, y) || onLand(x - r, y)) return true;
-    if (onLand(x, y + r) || onLand(x, y - r)) return true;
-    return false;
-  }
   preventLandEntry() {
     if (this.isNearPort()) return;
     const nx = this.x + this.vx;
     const ny = this.y + this.vy;
-    if (!this._hitsLand(nx, ny)) return;
-    // Try x-only movement
-    const xOk = !this._hitsLand(nx, this.y);
-    // Try y-only movement
-    const yOk = !this._hitsLand(this.x, ny);
-    if (xOk && !yOk) {
-      this.vy = 0;
-      return;
-    }
-    if (yOk && !xOk) {
-      this.vx = 0;
-      return;
-    }
+    if (!onLand(nx, ny)) return;
+    const xOk = !onLand(nx, this.y);
+    const yOk = !onLand(this.x, ny);
+    if (xOk && !yOk) { this.vy *= -0.3; return; }
+    if (yOk && !xOk) { this.vx *= -0.3; return; }
     if (xOk && yOk) {
-      // Both axes independently OK — diagonal clips corner; pick axis with more velocity
-      if (Math.abs(this.vx) > Math.abs(this.vy)) this.vy = 0;
-      else this.vx = 0;
+      if (Math.abs(this.vx) > Math.abs(this.vy)) this.vy *= -0.3;
+      else this.vx *= -0.3;
       return;
     }
-    // Fully blocked
-    this.vx = 0;
-    this.vy = 0;
+    // Fully blocked — push away from land
+    const pushX = this.vx !== 0 ? -Math.sign(this.vx) : (Math.random() - 0.5);
+    const pushY = this.vy !== 0 ? -Math.sign(this.vy) : (Math.random() - 0.5);
+    this.vx = pushX * 0.5;
+    this.vy = pushY * 0.5;
   }
   resolveLandCollision() {
     if (this.isNearPort() || !onLand(this.x, this.y)) return;
-    const wp = findWater(this.x, this.y, 300);
-    this.x = wp.x;
-    this.y = wp.y;
+    // Already stuck inside land — nudge outward over multiple directions
+    for (let r = 5; r <= 200; r += 5) {
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+        const tx = this.x + Math.cos(a) * r;
+        const ty = this.y + Math.sin(a) * r;
+        if (tx > 15 && tx < WW - 15 && ty > 15 && ty < WH - 15 && !onLand(tx, ty)) {
+          this.x = tx;
+          this.y = ty;
+          this.vx = Math.cos(a) * 0.5;
+          this.vy = Math.sin(a) * 0.5;
+          return;
+        }
+      }
+    }
+    this.x = WW / 2;
+    this.y = WH / 2;
     this.vx = 0;
     this.vy = 0;
   }
@@ -802,7 +813,7 @@ function spawnInitialNPCs() {
   });
   for (const p of PIRATE_PORTS) {
     for (let i = 0; i < 4; i++) {
-      const safe = findWater(p.x + rand(-120, 120), p.y + rand(-120, 120), 150);
+      const safe = spawnInPort(p);
       const ship = new Ship(safe.x, safe.y, "ai_pirate");
       ship.state = "idle";
       npcs.push(ship);
@@ -810,7 +821,7 @@ function spawnInitialNPCs() {
   }
   for (const p of NAVY_PORTS) {
     for (let i = 0; i < 2; i++) {
-      const safe = findWater(p.x + rand(-100, 100), p.y + rand(20, 120), 150);
+      const safe = spawnInPort(p);
       const ship = new Ship(safe.x, safe.y, "ai_navy");
       ship.state = "patrol";
       npcs.push(ship);
@@ -838,9 +849,12 @@ function spawnNPC(type) {
   if (type === "ai_pirate") port = pick(PIRATE_PORTS);
   else if (type === "ai_navy") port = pick(NAVY_PORTS);
   else if (type === "ai_merchant") port = pick(NEUTRAL_PORTS);
-  const x = port ? port.x + rand(-150, 150) : rand(300, WW - 300);
-  const y = port ? port.y + rand(-150, 150) : rand(500, WH - 300);
-  const safe = findWater(x, y, 200);
+  let safe;
+  if (port) {
+    safe = spawnInPort(port);
+  } else {
+    safe = findWater(rand(300, WW - 300), rand(500, WH - 300), 200);
+  }
   const ship = new Ship(safe.x, safe.y, type);
   if (type === "ai_merchant") {
     const lane = pick(LANES);
@@ -2611,9 +2625,10 @@ io.on("connection", (socket) => {
           ? PIRATE_PORTS
           : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
+    const safe = spawnInPort(sp);
     const ship = new Ship(
-      sp.x + rand(-40, 40),
-      sp.y + rand(-40, 40),
+      safe.x,
+      safe.y,
       startTypes[faction],
       socket.id,
     );
@@ -2704,9 +2719,10 @@ io.on("connection", (socket) => {
           ? PIRATE_PORTS
           : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
+    const safe = spawnInPort(sp);
     const ship = new Ship(
-      sp.x + rand(-40, 40),
-      sp.y + rand(-40, 40),
+      safe.x,
+      safe.y,
       startTypes[faction],
       socket.id,
     );
