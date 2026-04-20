@@ -1226,104 +1226,220 @@
       const LAND_YEMEN = [
         [0, 0],
         [WW, 0],
-        [WW, 360],
-        [2800, 330],
-        [2200, 360],
-        [1600, 340],
-        [1000, 320],
-        [600, 360],
-        [0, 390],
+        [WW, 380],
+        [2800, 386],
+        [2400, 393],
+        [2000, 399],
+        [1600, 405],
+        [1200, 400],
+        [800, 407],
+        [400, 398],
+        [200, 390],
+        [0, 385],
       ];
       const LAND_SOMALIA = [
-        [0, 430],
+        [0, 580],
+        [0, 1650],
+        [40, 1580],
+        [70, 1480],
+        [100, 1370],
+        [130, 1250],
+        [160, 1130],
+        [195, 1010],
+        [235, 900],
+        [285, 800],
+        [345, 720],
+        [420, 670],
+        [500, 650],
+        [470, 630],
+        [420, 618],
+        [360, 610],
+        [290, 608],
+        [220, 612],
+        [160, 622],
+        [110, 630],
+        [70, 632],
+        [30, 618],
+        [0, 580],
+      ];
+      const LAND_HEADLAND_LEFT = [
+        [260, 398],
+        [290, 425],
+        [300, 455],
+        [290, 487],
+        [270, 499],
+        [248, 489],
+        [238, 457],
+        [245, 427],
+      ];
+      const LAND_HEADLAND_RIGHT = [
+        [2910, 390],
+        [2940, 418],
+        [2950, 448],
+        [2940, 478],
+        [2920, 490],
+        [2898, 480],
+        [2888, 448],
+        [2895, 418],
+      ];
+      const LAND_COVE_LEFT = [
+        [0, 1650],
         [0, WH],
-        [450, WH],
-        [480, 2000],
-        [450, 1600],
-        [430, 1200],
-        [440, 900],
-        [480, 720],
-        [580, 590],
-        [680, 560],
-        [620, 510],
-        [520, 480],
-        [350, 460],
-        [180, 445],
+        [380, WH],
+        [370, 2300],
+        [350, 2200],
+        [330, 2100],
+        [300, 2000],
+        [260, 1930],
+        [210, 1870],
+        [160, 1820],
+        [110, 1790],
+        [70, 1750],
+        [30, 1710],
+        [0, 1650],
+      ];
+      const LAND_COVE_JAW = [
+        [1100, 1860],
+        [1170, 1830],
+        [1260, 1820],
+        [1360, 1835],
+        [1420, 1870],
+        [1440, 1920],
+        [1420, 1960],
+        [1360, 1975],
+        [1270, 1965],
+        [1180, 1935],
+        [1120, 1900],
+        [1100, 1860],
+      ];
+      const LAND_BOTTOM = [
+        [380, WH],
+        [WW, WH],
+        [WW, 2100],
+        [3000, 2080],
+        [2600, 2090],
+        [2200, 2080],
+        [1800, 2090],
+        [1400, 2080],
+        [1000, 2090],
+        [700, 2100],
+        [380, 2120],
+        [380, WH],
       ];
       const ISLAND_POLYS = [
         [
-          [1170, 790],
-          [1215, 778],
-          [1250, 795],
-          [1245, 835],
-          [1205, 848],
-          [1168, 830],
+          [1170, 940],
+          [1200, 925],
+          [1240, 930],
+          [1260, 950],
+          [1255, 980],
+          [1230, 1000],
+          [1195, 1005],
+          [1170, 990],
+          [1160, 965],
         ],
         [
-          [860, 1050],
-          [905, 1038],
-          [938, 1058],
-          [932, 1092],
-          [895, 1105],
-          [858, 1082],
+          [850, 1200],
+          [880, 1182],
+          [920, 1185],
+          [945, 1205],
+          [948, 1235],
+          [930, 1255],
+          [900, 1265],
+          [870, 1258],
+          [850, 1238],
         ],
         [
-          [1770, 630],
-          [1820, 618],
-          [1855, 638],
-          [1845, 672],
-          [1805, 682],
-          [1768, 660],
+          [1760, 770],
+          [1795, 755],
+          [1835, 760],
+          [1860, 780],
+          [1865, 810],
+          [1850, 835],
+          [1815, 845],
+          [1780, 840],
+          [1760, 820],
         ],
+        [
+          [2100, 1000],
+          [2130, 988],
+          [2165, 995],
+          [2178, 1020],
+          [2170, 1048],
+          [2140, 1060],
+          [2110, 1050],
+          [2098, 1025],
+        ],
+        [
+          [1450, 1450],
+          [1480, 1435],
+          [1515, 1445],
+          [1525, 1475],
+          [1510, 1498],
+          [1475, 1505],
+          [1450, 1490],
+          [1440, 1468],
+        ],
+      ];
+      const ALL_CLIENT_LAND = [
+        LAND_YEMEN,
+        LAND_SOMALIA,
+        LAND_HEADLAND_LEFT,
+        LAND_HEADLAND_RIGHT,
+        LAND_COVE_LEFT,
+        LAND_COVE_JAW,
+        LAND_BOTTOM,
       ];
       const LANES = [
         {
           wp: [
-            [1600, 420],
-            [1200, 520],
-            [1000, 700],
-            [1100, 950],
+            [1600, 500],
+            [1200, 700],
+            [1000, 900],
+            [1100, 1100],
             [1400, 1300],
-            [1800, 1550],
-            [2200, 1750],
+            [1800, 1500],
+            [2200, 1600],
           ],
           risk: "high",
         },
         {
           wp: [
-            [2700, 370],
-            [2200, 370],
-            [1600, 380],
+            [2700, 400],
+            [2200, 450],
+            [1600, 490],
           ],
           risk: "low",
         },
         {
           wp: [
-            [380, 435],
-            [750, 575],
-            [950, 775],
-            [1200, 1000],
+            [580, 680],
+            [750, 780],
+            [950, 920],
+            [1200, 1100],
             [1500, 1250],
-            [1900, 1550],
+            [1900, 1450],
           ],
           risk: "medium",
         },
       ];
       const PORTS = {
-        djibouti: { x: 350, y: 415, name: "Djibouti", f: "navy" },
-        mukalla: { x: 1100, y: 355, name: "Mukalla", f: "navy" },
-        aden: { x: 1600, y: 420, name: "Aden", f: "neutral" },
-        salalah: { x: 2500, y: 385, name: "Salalah", f: "neutral" },
-        berbera: { x: 520, y: 490, name: "Berbera", f: "neutral" },
-        bosaso: { x: 650, y: 550, name: "Bosaso", f: "pirate" },
-        eyl: { x: 560, y: 700, name: "Eyl", f: "pirate" },
-        hobyo: { x: 500, y: 970, name: "Hobyo", f: "pirate" },
-        kismayo: { x: 460, y: 1700, name: "Kismayo", f: "pirate" },
-        mogadishu: { x: 470, y: 1250, name: "Mogadishu", f: "neutral" },
-        mombasa: { x: 2200, y: 1750, name: "Mombasa", f: "neutral" },
-        saadin: { x: 1205, y: 815, name: "Saad ad-Din Isle", f: "island" },
-        ilig: { x: 895, y: 1075, name: "Ilig Isle", f: "island" },
-        socotra: { x: 1805, y: 655, name: "Socotra Isle", f: "island" },
+        aden: { x: 1600, y: 500, name: "Aden", f: "neutral" },
+        salalah: { x: 2400, y: 490, name: "Salalah", f: "neutral" },
+        berbera: { x: 580, y: 680, name: "Berbera", f: "neutral" },
+        mogadishu: { x: 300, y: 1200, name: "Mogadishu", f: "neutral" },
+        mombasa: { x: 2200, y: 1600, name: "Mombasa", f: "neutral" },
+        djibouti: { x: 140, y: 480, name: "Djibouti Naval Base", f: "navy" },
+        muscat: { x: 3050, y: 490, name: "Muscat Naval Base", f: "navy" },
+        bosaso: { x: 3000, y: 1950, name: "Bosaso", f: "pirate" },
+        eyl: { x: 1450, y: 2000, name: "Eyl", f: "pirate" },
+        hobyo: { x: 2050, y: 1920, name: "Hobyo", f: "pirate" },
+        kismayo: { x: 500, y: 2000, name: "Kismayo", f: "pirate" },
+        saadin: { x: 1210, y: 960, name: "Saad ad-Din Isle", f: "island" },
+        ilig: { x: 900, y: 1220, name: "Ilig Isle", f: "island" },
+        socotra: { x: 1810, y: 800, name: "Socotra Isle", f: "island" },
+        abdalkuri: { x: 2140, y: 1020, name: "Abd al Kuri Isle", f: "island" },
+        darsa: { x: 1490, y: 1465, name: "Darsa Isle", f: "island" },
       };
 
       const SHIP_COLORS = {
@@ -1356,13 +1472,13 @@
       let connected = false;
       let lastMessages = [];
       let settingsOpen = false;
-        const settings = {
-          uiScale: 1.0,
-          showFps: false,
-          showNames: true,
-          minimapSize: 1,
-          showGrid: true,
-        };
+      const settings = {
+        uiScale: 1.0,
+        showFps: false,
+        showNames: true,
+        minimapSize: 1,
+        showGrid: true,
+      };
       let fpsFrames = 0,
         fpsTime = 0,
         fpsDisplay = 0;
@@ -1849,8 +1965,8 @@
 
         // Camera follows own ship
         if (gameState.self && gameState.self.x !== undefined) {
-            cam.x = lerp(cam.x, gameState.self.x - canvas.width / 2, 0.12);
-            cam.y = lerp(cam.y, gameState.self.y - canvas.height / 2, 0.12);
+          cam.x = lerp(cam.x, gameState.self.x - canvas.width / 2, 0.12);
+          cam.y = lerp(cam.y, gameState.self.y - canvas.height / 2, 0.12);
           cam.x = Math.max(0, Math.min(WW - canvas.width, cam.x));
           cam.y = Math.max(0, Math.min(WH - canvas.height, cam.y));
         }
@@ -1901,14 +2017,12 @@
 
         // Land
         ctx.fillStyle = "#1c2d40";
-        drawPoly(ctx, LAND_YEMEN);
-        drawPoly(ctx, LAND_SOMALIA);
+        ALL_CLIENT_LAND.forEach((p) => drawPoly(ctx, p));
         ctx.fillStyle = "#3d3520";
         ISLAND_POLYS.forEach((p) => drawPoly(ctx, p));
         ctx.strokeStyle = "rgba(60,90,120,0.4)";
         ctx.lineWidth = 2;
-        drawPolyBorder(ctx, LAND_YEMEN);
-        drawPolyBorder(ctx, LAND_SOMALIA);
+        ALL_CLIENT_LAND.forEach((p) => drawPolyBorder(ctx, p));
         ctx.strokeStyle = "rgba(120,100,50,0.3)";
         ctx.lineWidth = 1;
         ISLAND_POLYS.forEach((p) => drawPolyBorder(ctx, p));
@@ -1992,6 +2106,142 @@
             ctx.fillStyle = "#f39c12";
             ctx.font = "bold 10px Rajdhani";
             ctx.fillText("DELIVER HERE", p.x, p.y - DOCK_RANGE - 8);
+          }
+        }
+
+        // Hazards
+        if (gameState.hazards) {
+          const hz = gameState.hazards;
+
+          // Mines
+          if (hz.mines) {
+            for (const m of hz.mines) {
+              if (!vis(m.x, m.y, 30)) continue;
+              const p = w2s(m.x, m.y);
+              ctx.fillStyle = "rgba(80,80,80,0.6)";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = "#e74c3c";
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+              // Spikes
+              for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(p.x + Math.cos(a) * 6, p.y + Math.sin(a) * 6);
+                ctx.lineTo(p.x + Math.cos(a) * 10, p.y + Math.sin(a) * 10);
+                ctx.stroke();
+              }
+            }
+          }
+
+          // Whirlpools
+          if (hz.whirlpools) {
+            for (const w of hz.whirlpools) {
+              if (!vis(w.x, w.y, w.r + 50)) continue;
+              const p = w2s(w.x, w.y);
+              const a = w.a || 0;
+              ctx.save();
+              ctx.translate(p.x, p.y);
+              for (let ring = 0; ring < 4; ring++) {
+                const r = (w.r * (ring + 1)) / 4;
+                ctx.strokeStyle = `rgba(80,180,220,${0.3 - ring * 0.06})`;
+                ctx.lineWidth = 2 - ring * 0.3;
+                ctx.beginPath();
+                ctx.arc(
+                  0,
+                  0,
+                  r,
+                  a + ring * 0.5,
+                  a + ring * 0.5 + Math.PI * 1.5,
+                );
+                ctx.stroke();
+              }
+              ctx.fillStyle = "rgba(20,60,100,0.5)";
+              ctx.beginPath();
+              ctx.arc(0, 0, w.r * 0.25, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+              ctx.fillStyle = "#50b4dc";
+              ctx.font = "bold 9px Rajdhani";
+              ctx.textAlign = "center";
+              ctx.fillText("WHIRLPOOL", p.x, p.y - w.r - 8);
+            }
+          }
+
+          // Krakens
+          if (hz.krakens) {
+            for (const k of hz.krakens) {
+              if (!vis(k.x, k.y, 80)) continue;
+              const p = w2s(k.x, k.y);
+              // Danger zone
+              const zp = w2s(k.zx, k.zy);
+              ctx.strokeStyle = "rgba(200,50,50,0.3)";
+              ctx.lineWidth = 1;
+              ctx.setLineDash([6, 4]);
+              ctx.beginPath();
+              ctx.arc(zp.x, zp.y, k.r, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              // Tentacles
+              ctx.strokeStyle = "#2d5a1e";
+              ctx.lineWidth = 4;
+              for (let i = 0; i < 6; i++) {
+                const ta = (i / 6) * Math.PI * 2 + gt * 2;
+                const len = 25 + Math.sin(gt * 3 + i) * 10;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                const cx = p.x + Math.cos(ta) * len * 0.6;
+                const cy = p.y + Math.sin(ta) * len * 0.6;
+                ctx.quadraticCurveTo(
+                  cx,
+                  cy,
+                  p.x + Math.cos(ta) * len,
+                  p.y + Math.sin(ta) * len,
+                );
+                ctx.stroke();
+              }
+              ctx.fillStyle = "#1a4010";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "#ff3333";
+              ctx.beginPath();
+              ctx.arc(p.x - 4, p.y - 2, 3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.beginPath();
+              ctx.arc(p.x + 4, p.y - 2, 3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "#ff3333";
+              ctx.font = "bold 10px Rajdhani";
+              ctx.textAlign = "center";
+              ctx.fillText("KRAKEN!", p.x, p.y - 35);
+            }
+          }
+
+          // Turrets
+          if (hz.turrets) {
+            for (const t of hz.turrets) {
+              if (!vis(t.x, t.y, 30)) continue;
+              const p = w2s(t.x, t.y);
+              // Base
+              ctx.fillStyle = "#2c3e50";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = "#3498db";
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              // Barrel
+              const a = t.a || 0;
+              ctx.strokeStyle = "#5dade2";
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p.x + Math.cos(a) * 14, p.y + Math.sin(a) * 14);
+              ctx.stroke();
+            }
           }
         }
 
@@ -2288,8 +2538,7 @@
         const sx = mw / WW,
           sy = mh / WH;
         mctx.fillStyle = "#1c2d40";
-        drawMiniPoly(mctx, LAND_SOMALIA, sx, sy);
-        drawMiniPoly(mctx, LAND_YEMEN, sx, sy);
+        ALL_CLIENT_LAND.forEach((p) => drawMiniPoly(mctx, p, sx, sy));
         mctx.fillStyle = "#3d3520";
         ISLAND_POLYS.forEach((p) => drawMiniPoly(mctx, p, sx, sy));
         mctx.strokeStyle = "rgba(80,160,220,0.2)";
@@ -2430,22 +2679,16 @@
             mc2.stroke();
           }
           mc2.fillStyle = "#1c2d40";
-          mc2.beginPath();
-          LAND_YEMEN.forEach((p, i) => {
-            const sx2 = (p[0] / WW) * mc.width,
-              sy2 = (p[1] / WH) * mc.height;
-            i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
+          ALL_CLIENT_LAND.forEach((land) => {
+            mc2.beginPath();
+            land.forEach((p, i) => {
+              const sx2 = (p[0] / WW) * mc.width,
+                sy2 = (p[1] / WH) * mc.height;
+              i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
+            });
+            mc2.closePath();
+            mc2.fill();
           });
-          mc2.closePath();
-          mc2.fill();
-          mc2.beginPath();
-          LAND_SOMALIA.forEach((p, i) => {
-            const sx2 = (p[0] / WW) * mc.width,
-              sy2 = (p[1] / WH) * mc.height;
-            i === 0 ? mc2.moveTo(sx2, sy2) : mc2.lineTo(sx2, sy2);
-          });
-          mc2.closePath();
-          mc2.fill();
           mc2.fillStyle = "#3d3520";
           ISLAND_POLYS.forEach((poly) => {
             mc2.beginPath();
@@ -2570,7 +2813,10 @@
             settings.uiScale = parseFloat(this.value);
             document.getElementById("ui-scale-val").textContent =
               settings.uiScale.toFixed(1) + "x";
-            document.documentElement.style.setProperty("--ui-scale", settings.uiScale);
+            document.documentElement.style.setProperty(
+              "--ui-scale",
+              settings.uiScale,
+            );
           });
         document
           .getElementById("toggle-fps")

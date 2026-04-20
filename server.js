@@ -27,74 +27,190 @@ const MAX_PLAYERS = 30;
 const LAND_YEMEN = [
   [0, 0],
   [WW, 0],
-  [WW, 360],
-  [2800, 330],
-  [2200, 360],
-  [1600, 340],
-  [1000, 320],
-  [600, 360],
-  [0, 390],
+  [WW, 380],
+  [2800, 386],
+  [2400, 393],
+  [2000, 399],
+  [1600, 405],
+  [1200, 400],
+  [800, 407],
+  [400, 398],
+  [200, 390],
+  [0, 385],
 ];
 const LAND_SOMALIA = [
-  [0, 430],
+  [0, 580],
+  [0, 1650],
+  [40, 1580],
+  [70, 1480],
+  [100, 1370],
+  [130, 1250],
+  [160, 1130],
+  [195, 1010],
+  [235, 900],
+  [285, 800],
+  [345, 720],
+  [420, 670],
+  [500, 650],
+  [470, 630],
+  [420, 618],
+  [360, 610],
+  [290, 608],
+  [220, 612],
+  [160, 622],
+  [110, 630],
+  [70, 632],
+  [30, 618],
+  [0, 580],
+];
+const LAND_HEADLAND_LEFT = [
+  [260, 398],
+  [290, 425],
+  [300, 455],
+  [290, 487],
+  [270, 499],
+  [248, 489],
+  [238, 457],
+  [245, 427],
+];
+const LAND_HEADLAND_RIGHT = [
+  [2910, 390],
+  [2940, 418],
+  [2950, 448],
+  [2940, 478],
+  [2920, 490],
+  [2898, 480],
+  [2888, 448],
+  [2895, 418],
+];
+const LAND_COVE_LEFT = [
+  [0, 1650],
   [0, WH],
-  [450, WH],
-  [480, 2000],
-  [450, 1600],
-  [430, 1200],
-  [440, 900],
-  [480, 720],
-  [580, 590],
-  [680, 560],
-  [620, 510],
-  [520, 480],
-  [350, 460],
-  [180, 445],
+  [380, WH],
+  [370, 2300],
+  [350, 2200],
+  [330, 2100],
+  [300, 2000],
+  [260, 1930],
+  [210, 1870],
+  [160, 1820],
+  [110, 1790],
+  [70, 1750],
+  [30, 1710],
+  [0, 1650],
+];
+const LAND_COVE_JAW = [
+  [1100, 1860],
+  [1170, 1830],
+  [1260, 1820],
+  [1360, 1835],
+  [1420, 1870],
+  [1440, 1920],
+  [1420, 1960],
+  [1360, 1975],
+  [1270, 1965],
+  [1180, 1935],
+  [1120, 1900],
+  [1100, 1860],
+];
+const LAND_BOTTOM = [
+  [380, WH],
+  [WW, WH],
+  [WW, 2100],
+  [3000, 2080],
+  [2600, 2090],
+  [2200, 2080],
+  [1800, 2090],
+  [1400, 2080],
+  [1000, 2090],
+  [700, 2100],
+  [380, 2120],
+  [380, WH],
 ];
 const ISLAND_POLYS = [
   [
-    [1170, 790],
-    [1215, 778],
-    [1250, 795],
-    [1245, 835],
-    [1205, 848],
-    [1168, 830],
+    [1170, 940],
+    [1200, 925],
+    [1240, 930],
+    [1260, 950],
+    [1255, 980],
+    [1230, 1000],
+    [1195, 1005],
+    [1170, 990],
+    [1160, 965],
   ],
   [
-    [860, 1050],
-    [905, 1038],
-    [938, 1058],
-    [932, 1092],
-    [895, 1105],
-    [858, 1082],
+    [850, 1200],
+    [880, 1182],
+    [920, 1185],
+    [945, 1205],
+    [948, 1235],
+    [930, 1255],
+    [900, 1265],
+    [870, 1258],
+    [850, 1238],
   ],
   [
-    [1770, 630],
-    [1820, 618],
-    [1855, 638],
-    [1845, 672],
-    [1805, 682],
-    [1768, 660],
+    [1760, 770],
+    [1795, 755],
+    [1835, 760],
+    [1860, 780],
+    [1865, 810],
+    [1850, 835],
+    [1815, 845],
+    [1780, 840],
+    [1760, 820],
+  ],
+  [
+    [2100, 1000],
+    [2130, 988],
+    [2165, 995],
+    [2178, 1020],
+    [2170, 1048],
+    [2140, 1060],
+    [2110, 1050],
+    [2098, 1025],
+  ],
+  [
+    [1450, 1450],
+    [1480, 1435],
+    [1515, 1445],
+    [1525, 1475],
+    [1510, 1498],
+    [1475, 1505],
+    [1450, 1490],
+    [1440, 1468],
   ],
 ];
-const ALL_LAND = [LAND_YEMEN, LAND_SOMALIA, ...ISLAND_POLYS];
+const ALL_LAND = [
+  LAND_YEMEN,
+  LAND_SOMALIA,
+  LAND_HEADLAND_LEFT,
+  LAND_HEADLAND_RIGHT,
+  LAND_COVE_LEFT,
+  LAND_COVE_JAW,
+  LAND_BOTTOM,
+  ...ISLAND_POLYS,
+];
 
 // ======================== PORTS ========================
 const PORTS = {
-  djibouti: { x: 350, y: 415, name: "Djibouti", f: "navy" },
-  mukalla: { x: 1100, y: 355, name: "Mukalla", f: "navy" },
-  aden: { x: 1600, y: 420, name: "Aden", f: "neutral" },
-  salalah: { x: 2500, y: 385, name: "Salalah", f: "neutral" },
-  berbera: { x: 520, y: 490, name: "Berbera", f: "neutral" },
-  bosaso: { x: 650, y: 550, name: "Bosaso", f: "pirate" },
-  eyl: { x: 560, y: 700, name: "Eyl", f: "pirate" },
-  hobyo: { x: 500, y: 970, name: "Hobyo", f: "pirate" },
-  kismayo: { x: 460, y: 1700, name: "Kismayo", f: "pirate" },
-  mogadishu: { x: 470, y: 1250, name: "Mogadishu", f: "neutral" },
-  mombasa: { x: 2200, y: 1750, name: "Mombasa", f: "neutral" },
-  saadin: { x: 1205, y: 815, name: "Saad ad-Din Isle", f: "island" },
-  ilig: { x: 895, y: 1075, name: "Ilig Isle", f: "island" },
-  socotra: { x: 1805, y: 655, name: "Socotra Isle", f: "island" },
+  aden: { x: 1600, y: 500, name: "Aden", f: "neutral" },
+  salalah: { x: 2400, y: 490, name: "Salalah", f: "neutral" },
+  berbera: { x: 580, y: 680, name: "Berbera", f: "neutral" },
+  mogadishu: { x: 300, y: 1200, name: "Mogadishu", f: "neutral" },
+  mombasa: { x: 2200, y: 1600, name: "Mombasa", f: "neutral" },
+  djibouti: { x: 140, y: 480, name: "Djibouti Naval Base", f: "navy" },
+  muscat: { x: 3050, y: 490, name: "Muscat Naval Base", f: "navy" },
+  bosaso: { x: 3000, y: 1950, name: "Bosaso", f: "pirate" },
+  eyl: { x: 1450, y: 2000, name: "Eyl", f: "pirate" },
+  hobyo: { x: 2050, y: 1920, name: "Hobyo", f: "pirate" },
+  kismayo: { x: 500, y: 2000, name: "Kismayo", f: "pirate" },
+  saadin: { x: 1210, y: 960, name: "Saad ad-Din Isle", f: "island" },
+  ilig: { x: 900, y: 1220, name: "Ilig Isle", f: "island" },
+  socotra: { x: 1810, y: 800, name: "Socotra Isle", f: "island" },
+  abdalkuri: { x: 2140, y: 1020, name: "Abd al Kuri Isle", f: "island" },
+  darsa: { x: 1490, y: 1465, name: "Darsa Isle", f: "island" },
 };
 
 const BLACK_MARKETS = {
@@ -118,32 +234,32 @@ const BLACK_MARKETS = {
 const LANES = [
   {
     wp: [
-      [1600, 420],
-      [1200, 520],
-      [1000, 700],
-      [1100, 950],
+      [1600, 500],
+      [1200, 700],
+      [1000, 900],
+      [1100, 1100],
       [1400, 1300],
-      [1800, 1550],
-      [2200, 1750],
+      [1800, 1500],
+      [2200, 1600],
     ],
     risk: "high",
   },
   {
     wp: [
-      [2700, 370],
-      [2200, 370],
-      [1600, 380],
+      [2700, 400],
+      [2200, 450],
+      [1600, 490],
     ],
     risk: "low",
   },
   {
     wp: [
-      [380, 435],
-      [750, 575],
-      [950, 775],
-      [1200, 1000],
+      [580, 680],
+      [750, 780],
+      [950, 920],
+      [1200, 1100],
       [1500, 1250],
-      [1900, 1550],
+      [1900, 1450],
     ],
     risk: "medium",
   },
@@ -185,6 +301,10 @@ const CONTRACT_DEFS = [
   { from: "berbera", to: "mombasa", cargo: "Textiles", reward: 4200 },
   { from: "berbera", to: "mogadishu", cargo: "Crude Oil", reward: 3500 },
   { from: "berbera", to: "salalah", cargo: "Electronics", reward: 5000 },
+  { from: "salalah", to: "berbera", cargo: "Vehicles", reward: 3800 },
+  { from: "mogadishu", to: "berbera", cargo: "Food Grains", reward: 2000 },
+  { from: "aden", to: "mogadishu", cargo: "Crude Oil", reward: 4500 },
+  { from: "mombasa", to: "aden", cargo: "Heavy Machinery", reward: 5800 },
 ];
 
 const SHIP_DEFS = {
@@ -225,7 +345,7 @@ const WEAPON_TYPES = {
   turret: { name: "Heavy Turret", dmg: 18, spd: 6, cd: 1.0 },
 };
 
-const UPGRADE_CAPS = { maxSpd: 6.0, maxHp: 300, maxLoot: 1500, maxDmg: 35 };
+const UPGRADE_CAPS = { maxSpd: 6.0, maxHp: 300, maxLoot: 1500, maxDmg: 40 };
 
 const NAMES_MERCHANT = [
   "MV Horizon",
@@ -264,6 +384,87 @@ const NAMES_CAPTAIN = [
   "Farah",
   "Hussein",
 ];
+
+// ======================== HAZARDS ========================
+const MINES = [];
+const MINE_COUNT = 18;
+const MINE_DMG = 40;
+const MINE_RADIUS = 20;
+
+const WHIRLPOOLS = [
+  { x: 1100, y: 700, radius: 70, pull: 0.6, dmg: 2 },
+  { x: 1900, y: 1100, radius: 80, pull: 0.7, dmg: 2.5 },
+  { x: 700, y: 1300, radius: 65, pull: 0.55, dmg: 1.8 },
+  { x: 2500, y: 1000, radius: 75, pull: 0.65, dmg: 2 },
+];
+
+const KRAKEN_ZONES = [
+  {
+    x: 1400,
+    y: 1000,
+    radius: 120,
+    spawnChance: 0.003,
+    active: false,
+    timer: 0,
+    tentX: 0,
+    tentY: 0,
+  },
+  {
+    x: 2200,
+    y: 1300,
+    radius: 130,
+    spawnChance: 0.004,
+    active: false,
+    timer: 0,
+    tentX: 0,
+    tentY: 0,
+  },
+];
+
+const TURRET_RANGE = 250;
+const TURRET_DMG = 25;
+const TURRET_CD = 0.8;
+const portTurrets = [];
+
+function initHazards() {
+  MINES.length = 0;
+  for (let i = 0; i < MINE_COUNT; i++) {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const x = rand(600, WW - 200);
+      const y = rand(450, WH - 200);
+      if (!onLand(x, y)) {
+        let nearPort = false;
+        for (const p of Object.values(PORTS)) {
+          if (Math.sqrt((p.x - x) ** 2 + (p.y - y) ** 2) < 180) {
+            nearPort = true;
+            break;
+          }
+        }
+        if (!nearPort) {
+          MINES.push({ x, y, alive: true, id: "mine_" + i });
+          break;
+        }
+      }
+    }
+  }
+
+  portTurrets.length = 0;
+  const navyPorts = Object.values(PORTS).filter((p) => p.f === "navy");
+  for (const p of navyPorts) {
+    const offsets = [
+      { dx: -40, dy: -30 },
+      { dx: 40, dy: -30 },
+    ];
+    for (const off of offsets) {
+      portTurrets.push({
+        x: p.x + off.dx,
+        y: p.y + off.dy,
+        cooldown: 0,
+        portName: p.name,
+      });
+    }
+  }
+}
 
 // ======================== UTILITIES ========================
 function dist(a, b) {
@@ -399,7 +600,7 @@ const players = new Map();
 const npcs = [];
 const projectiles = [];
 let gameTime = 0;
-const spawnTimers = { merchant: 6, pirate: 6, navy: 6, fishing: 8 };
+const spawnTimers = { merchant: 4, pirate: 6, navy: 6, fishing: 8 };
 const messages = []; // global messages [{text,type,time,targetId?}]
 
 // ======================== SHIP ========================
@@ -466,58 +667,52 @@ class Ship {
         status: "Patrol",
       };
   }
-  resolveLandCollision() {
-    let nearPort = false;
+  isNearPort() {
     for (const p of Object.values(PORTS))
-      if (dist(this, p) < DOCK_RANGE + 25) {
-        nearPort = true;
-        break;
-      }
-    if (nearPort || !onLand(this.x, this.y)) return;
-    const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy) || 0.1;
-    const dx = this.vx / spd,
-      dy = this.vy / spd;
-    let escaped = false;
-    for (let i = 1; i <= 40 && !escaped; i++) {
-      const tx = this.x - dx * i * 4,
-        ty = this.y - dy * i * 4;
-      if (
-        tx > 20 &&
-        tx < WW - 20 &&
-        ty > 20 &&
-        ty < WH - 20 &&
-        !onLand(tx, ty)
-      ) {
-        this.x = tx;
-        this.y = ty;
-        escaped = true;
-      }
+      if (dist(this, p) < DOCK_RANGE + 25) return true;
+    return false;
+  }
+  _hitsLand(x, y) {
+    const r = Math.max(this.sz * 0.6, 5);
+    if (onLand(x, y)) return true;
+    if (onLand(x + r, y) || onLand(x - r, y)) return true;
+    if (onLand(x, y + r) || onLand(x, y - r)) return true;
+    return false;
+  }
+  preventLandEntry() {
+    if (this.isNearPort()) return;
+    const nx = this.x + this.vx;
+    const ny = this.y + this.vy;
+    if (!this._hitsLand(nx, ny)) return;
+    // Try x-only movement
+    const xOk = !this._hitsLand(nx, this.y);
+    // Try y-only movement
+    const yOk = !this._hitsLand(this.x, ny);
+    if (xOk && !yOk) {
+      this.vy = 0;
+      return;
     }
-    if (!escaped) {
-      const px = -dy,
-        py = dx;
-      for (let i = 1; i <= 25 && !escaped; i++) {
-        if (!onLand(this.x + px * i * 4, this.y + py * i * 4)) {
-          this.x += px * i * 4;
-          this.y += py * i * 4;
-          escaped = true;
-          break;
-        }
-        if (!onLand(this.x - px * i * 4, this.y - py * i * 4)) {
-          this.x -= px * i * 4;
-          this.y -= py * i * 4;
-          escaped = true;
-          break;
-        }
-      }
+    if (yOk && !xOk) {
+      this.vx = 0;
+      return;
     }
-    if (!escaped) {
-      const wp = findWater(this.x, this.y, 300);
-      this.x = wp.x;
-      this.y = wp.y;
+    if (xOk && yOk) {
+      // Both axes independently OK — diagonal clips corner; pick axis with more velocity
+      if (Math.abs(this.vx) > Math.abs(this.vy)) this.vy = 0;
+      else this.vx = 0;
+      return;
     }
-    this.vx *= -0.2;
-    this.vy *= -0.2;
+    // Fully blocked
+    this.vx = 0;
+    this.vy = 0;
+  }
+  resolveLandCollision() {
+    if (this.isNearPort() || !onLand(this.x, this.y)) return;
+    const wp = findWater(this.x, this.y, 300);
+    this.x = wp.x;
+    this.y = wp.y;
+    this.vx = 0;
+    this.vy = 0;
   }
   findBase() {
     let best = null,
@@ -606,7 +801,7 @@ function spawnInitialNPCs() {
     npcs.push(ship);
   });
   for (const p of PIRATE_PORTS) {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 4; i++) {
       const safe = findWater(p.x + rand(-120, 120), p.y + rand(-120, 120), 150);
       const ship = new Ship(safe.x, safe.y, "ai_pirate");
       ship.state = "idle";
@@ -614,7 +809,7 @@ function spawnInitialNPCs() {
     }
   }
   for (const p of NAVY_PORTS) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       const safe = findWater(p.x + rand(-100, 100), p.y + rand(20, 120), 150);
       const ship = new Ship(safe.x, safe.y, "ai_navy");
       ship.state = "patrol";
@@ -630,7 +825,7 @@ function spawnInitialNPCs() {
     ship.state = "moving";
     npcs.push(ship);
   }
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     const safe = findWater(rand(300, 2800), rand(500, 2100), 200);
     const ship = new Ship(safe.x, safe.y, "fishing");
     ship.state = "idle";
@@ -767,6 +962,7 @@ function updateNPCShip(s, dt) {
     s.stunTimer -= dt;
     s.vx *= 0.9;
     s.vy *= 0.9;
+    s.preventLandEntry();
     s.x += s.vx;
     s.y += s.vy;
     s.resolveLandCollision();
@@ -841,6 +1037,7 @@ function updateNPCShip(s, dt) {
     s.vy = (s.vy / spd) * s.maxSpd;
   }
   if (spd > 0.15) s.angle = lerpAng(s.angle, Math.atan2(s.vy, s.vx), 0.08);
+  s.preventLandEntry();
   s.x += s.vx;
   s.y += s.vy;
   s.x = clamp(s.x, 15, WW - 15);
@@ -984,7 +1181,11 @@ function npcBoard(s, dt) {
       if (targetOwner) {
         const pl = players.get(targetOwner);
         if (pl) {
-          sendMsg(targetOwner, "Your ship was boarded! You lost cargo!", "alert");
+          sendMsg(
+            targetOwner,
+            "Your ship was boarded! You lost cargo!",
+            "alert",
+          );
           s._target.damage(s._target.maxHp * 0.3, s.id);
           if (pl.contract) pl.contract = null;
         }
@@ -1113,6 +1314,7 @@ function updatePlayerShip(player, dt) {
     s.stunTimer -= dt;
     s.vx *= 0.9;
     s.vy *= 0.9;
+    s.preventLandEntry();
     s.x += s.vx;
     s.y += s.vy;
     s.resolveLandCollision();
@@ -1187,6 +1389,7 @@ function updatePlayerShip(player, dt) {
     s.vy = (s.vy / spd) * s.maxSpd;
   }
   s.angle = lerpAng(s.angle, s.tAngle, 0.1);
+  s.preventLandEntry();
   s.x += s.vx;
   s.y += s.vy;
   s.x = clamp(s.x, 15, WW - 15);
@@ -1999,6 +2202,179 @@ function handleInteraction(player) {
   }
 }
 
+// ======================== HAZARDS UPDATE ========================
+function getAllShipsForHazards() {
+  const all = [...npcs];
+  for (const pl of players.values())
+    if (pl.ship && pl.ship.alive) all.push(pl.ship);
+  return all;
+}
+
+function updateHazards(dt) {
+  const allShips = getAllShipsForHazards();
+
+  // Mines
+  for (const mine of MINES) {
+    if (!mine.alive) continue;
+    for (const s of allShips) {
+      if (!s.alive) continue;
+      const d = Math.sqrt((s.x - mine.x) ** 2 + (s.y - mine.y) ** 2);
+      if (d < MINE_RADIUS + s.sz) {
+        s.hp -= MINE_DMG;
+        s.stunTimer = Math.max(s.stunTimer, 1.5);
+        mine.alive = false;
+        if (s.hp <= 0) {
+          s.hp = 0;
+          s.alive = false;
+        }
+        const owner = s.ownerId ? players.get(s.ownerId) : null;
+        if (owner) sendMsg(owner.id, "Hit a sea mine! Hull damaged!", "alert");
+      }
+    }
+  }
+
+  // Respawn mines periodically
+  for (const mine of MINES) {
+    if (!mine.alive && Math.random() < 0.001) {
+      for (let attempt = 0; attempt < 30; attempt++) {
+        const x = rand(600, WW - 200);
+        const y = rand(450, WH - 200);
+        if (!onLand(x, y)) {
+          let nearPort = false;
+          for (const p of Object.values(PORTS)) {
+            if (Math.sqrt((p.x - x) ** 2 + (p.y - y) ** 2) < 180) {
+              nearPort = true;
+              break;
+            }
+          }
+          if (!nearPort) {
+            mine.x = x;
+            mine.y = y;
+            mine.alive = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Whirlpools
+  for (const wp of WHIRLPOOLS) {
+    wp._angle = (wp._angle || 0) + dt * 1.5;
+    for (const s of allShips) {
+      if (!s.alive) continue;
+      const dx = wp.x - s.x,
+        dy = wp.y - s.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < wp.radius + 40 && d > 5) {
+        const strength = 1 - d / (wp.radius + 40);
+        const pullStr = wp.pull * strength * dt;
+        s.vx += (dx / d) * pullStr;
+        s.vy += (dy / d) * pullStr;
+        // Spin effect
+        s.vx += (-dy / d) * pullStr * 0.5;
+        s.vy += (dx / d) * pullStr * 0.5;
+        // Slow ship proportional to depth
+        const slowFactor = 1 - strength * 0.4;
+        s.vx *= slowFactor;
+        s.vy *= slowFactor;
+        // Drain fuel for player ships
+        if (s.ownerId) {
+          const owner = players.get(s.ownerId);
+          if (owner && owner.fuel !== undefined) {
+            owner.fuel = Math.max(0, owner.fuel - 3 * strength * dt);
+          }
+        }
+        if (d < wp.radius * 0.4) {
+          s.hp -= wp.dmg * dt;
+          if (s.hp <= 0) {
+            s.hp = 0;
+            s.alive = false;
+          }
+        }
+      }
+    }
+  }
+
+  // Kraken zones
+  for (const kz of KRAKEN_ZONES) {
+    if (kz.active) {
+      kz.timer -= dt;
+      if (kz.timer <= 0) {
+        kz.active = false;
+        continue;
+      }
+      for (const s of allShips) {
+        if (!s.alive) continue;
+        const d = Math.sqrt((s.x - kz.tentX) ** 2 + (s.y - kz.tentY) ** 2);
+        if (d < 50) {
+          s.hp -= 15 * dt;
+          s.vx *= 0.92;
+          s.vy *= 0.92;
+          if (s.hp <= 0) {
+            s.hp = 0;
+            s.alive = false;
+          }
+          const owner = s.ownerId ? players.get(s.ownerId) : null;
+          if (owner) sendMsg(owner.id, "KRAKEN ATTACK! Get away!", "alert");
+        }
+      }
+    } else {
+      let shipNearby = false;
+      for (const s of allShips) {
+        if (!s.alive) continue;
+        const d = Math.sqrt((s.x - kz.x) ** 2 + (s.y - kz.y) ** 2);
+        if (d < kz.radius) {
+          shipNearby = true;
+          break;
+        }
+      }
+      if (shipNearby && Math.random() < kz.spawnChance) {
+        kz.active = true;
+        kz.timer = rand(6, 12);
+        kz.tentX = kz.x + rand(-60, 60);
+        kz.tentY = kz.y + rand(-60, 60);
+      }
+    }
+  }
+}
+
+function updateTurrets(dt) {
+  for (const turret of portTurrets) {
+    turret.cooldown = Math.max(0, turret.cooldown - dt);
+    if (turret.cooldown > 0) continue;
+
+    const allShips = getAllShipsForHazards();
+    let target = null,
+      bd = Infinity;
+    for (const s of allShips) {
+      if (!s.alive || s.faction !== "pirate") continue;
+      const d = Math.sqrt((s.x - turret.x) ** 2 + (s.y - turret.y) ** 2);
+      if (d < TURRET_RANGE && d < bd) {
+        bd = d;
+        target = s;
+      }
+    }
+    if (target) {
+      const a = Math.atan2(target.y - turret.y, target.x - turret.x);
+      projectiles.push(
+        new Projectile(
+          turret.x,
+          turret.y,
+          a,
+          "turret",
+          "navy",
+          TURRET_DMG,
+          9,
+          "cannon",
+        ),
+      );
+      turret.cooldown = TURRET_CD;
+      turret._lastAngle = a;
+    }
+  }
+}
+
 // ======================== GAME LOOP ========================
 function tick() {
   const dt = 1 / TICK_RATE;
@@ -2013,8 +2389,8 @@ function tick() {
       const npcCount = npcs.filter((n) => n.alive).length;
       if (npcCount < 80) {
         if (t === "merchant" && Math.random() < 0.8) spawnNPC("ai_merchant");
-        if (t === "pirate" && Math.random() < 0.9) spawnNPC("ai_pirate");
-        if (t === "navy" && Math.random() < 0.7) spawnNPC("ai_navy");
+        if (t === "pirate" && Math.random() < 0.6) spawnNPC("ai_pirate");
+        if (t === "navy" && Math.random() < 0.4) spawnNPC("ai_navy");
         if (t === "fishing" && Math.random() < 0.5) spawnNPC("fishing");
       }
       spawnTimers[t] =
@@ -2034,6 +2410,8 @@ function tick() {
 
   updateProjectiles(dt);
   checkCollisionDamage(dt);
+  updateHazards(dt);
+  updateTurrets(dt);
 
   // Check player deaths
   for (const [pid, pl] of players.entries()) {
@@ -2128,6 +2506,27 @@ function broadcastState() {
       naval: Math.round(m.naval * 100),
     };
 
+  const hazards = {
+    mines: MINES.filter((m) => m.alive).map((m) => ({
+      x: Math.round(m.x),
+      y: Math.round(m.y),
+    })),
+    whirlpools: WHIRLPOOLS.map((w) => ({
+      x: w.x,
+      y: w.y,
+      r: w.radius,
+      a: Math.round((w._angle || 0) * 100) / 100,
+    })),
+    krakens: KRAKEN_ZONES.filter((k) => k.active).map((k) => ({
+      x: Math.round(k.tentX),
+      y: Math.round(k.tentY),
+      zx: k.x,
+      zy: k.y,
+      r: k.radius,
+    })),
+    turrets: portTurrets.map((t) => ({ x: t.x, y: t.y, a: t._lastAngle || 0 })),
+  };
+
   for (const [pid, pl] of players.entries()) {
     const self = {
       id: pl.ship?.id,
@@ -2172,6 +2571,7 @@ function broadcastState() {
       messages: myMsgs,
       time: gameTime,
       leaderboard: getLeaderboard(),
+      hazards,
     });
   }
 }
@@ -2204,7 +2604,12 @@ io.on("connection", (socket) => {
     }
 
     const startTypes = { navy: "patrol", shipping: "coastal", pirate: "skiff" };
-    const factionPorts = faction === "navy" ? NAVY_PORTS : faction === "pirate" ? PIRATE_PORTS : NEUTRAL_PORTS;
+    const factionPorts =
+      faction === "navy"
+        ? NAVY_PORTS
+        : faction === "pirate"
+          ? PIRATE_PORTS
+          : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
     const ship = new Ship(
       sp.x + rand(-40, 40),
@@ -2292,7 +2697,12 @@ io.on("connection", (socket) => {
     if (!pl) return;
     const faction = data?.faction || pl.faction;
     const startTypes = { navy: "patrol", shipping: "coastal", pirate: "skiff" };
-    const factionPorts = faction === "navy" ? NAVY_PORTS : faction === "pirate" ? PIRATE_PORTS : NEUTRAL_PORTS;
+    const factionPorts =
+      faction === "navy"
+        ? NAVY_PORTS
+        : faction === "pirate"
+          ? PIRATE_PORTS
+          : NEUTRAL_PORTS;
     const sp = pick(factionPorts);
     const ship = new Ship(
       sp.x + rand(-40, 40),
@@ -2334,6 +2744,7 @@ io.on("connection", (socket) => {
 });
 
 // ======================== START ========================
+initHazards();
 spawnInitialNPCs();
 setInterval(tick, TICK_MS);
 const PORT = process.env.PORT || 8000;
